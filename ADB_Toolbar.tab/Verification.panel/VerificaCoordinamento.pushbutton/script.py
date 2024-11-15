@@ -28,7 +28,7 @@ app   = __revit__.Application
 ##############################################################
 
 def ConvertiUnita(valore):
-	return UnitUtils.Convert(valore,UnitTypeId.Feet,UnitTypeId.Meters)
+	return UnitUtils.Convert(valore,UnitTypeId.Feet,UnitTypeId.Meters)x
 
 ######################################################################################
 
