@@ -14,7 +14,7 @@ from Autodesk.Revit.DB import *
 import csv
 clr.AddReference('RevitAPIUI')
 from Autodesk.Revit.UI.Selection import ObjectType
-
+import math
 clr.AddReference('RevitServices')
 import RevitServices
 from RevitServices.Persistence import DocumentManager
@@ -23,12 +23,12 @@ from System.Collections.Generic import *
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document  #type: Document
-uidoc = __revit__.ActiveUIDocument                           
-app   = __revit__.Application        
+uidoc = __revit__.ActiveUIDocument						   
+app   = __revit__.Application		
 ##############################################################
 
 def ConvertiUnita(valore):
-	return UnitUtils.Convert(valore,UnitTypeId.Feet,UnitTypeId.Meters)x
+	return UnitUtils.Convert(valore,UnitTypeId.Feet,UnitTypeId.Meters)
 
 ######################################################################################
 
@@ -51,6 +51,8 @@ LinkedFiles = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_RvtLi
 LinkedFilesNames = [x.Name for x in LinkedFiles]
 
 SFL = forms.SelectFromList.show(LinkedFilesNames,button_name = "Seleziona Link URS")
+if not SFL:
+	script.exit()
 
 DocLinkSelezionato = LinkedFiles[LinkedFilesNames.index(SFL)].GetLinkDocument()
 LinkSelezionato = LinkedFiles[LinkedFilesNames.index(SFL)]
@@ -65,7 +67,7 @@ ErrorCounter = 0
 
 if LinkSelezionato.Pinned:
 	output.print_md(":white_heavy_check_mark: **MODELLO URS PINNATO**")
-	
+		
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, MODELLO URS NON PINNATO !**")
 	ErrorCounter += 1
@@ -80,15 +82,15 @@ else:
 Link_Iterator = Link_ProjectLocations.ForwardIterator()
 l = []
 while Link_Iterator.MoveNext():
-    l.append(Link_Iterator.Current)
+	l.append(Link_Iterator.Current)
 #
 
 Link_ProjectPosition = l[0].GetProjectPosition(XYZ.Zero)
 
-Linked_Angle = Link_ProjectPosition.Angle
-Linked_EastWest = ConvertiUnita(Link_ProjectPosition.EastWest)
-Linked_NorthSouth = ConvertiUnita(Link_ProjectPosition.NorthSouth)
-Linked_Elevazione = ConvertiUnita(Link_ProjectPosition.Elevation)
+Linked_Angle = round(math.degrees(Link_ProjectPosition.Angle),2)
+Linked_EastWest = round(ConvertiUnita(Link_ProjectPosition.EastWest),4)
+Linked_NorthSouth = round(ConvertiUnita(Link_ProjectPosition.NorthSouth),4)
+Linked_Elevazione = round(ConvertiUnita(Link_ProjectPosition.Elevation),4)
 
 # LA PRIMA RIGA SARA IL MODELLO LINKATO LA SECONDA IL MODELLO HOST
 COORDINATES_CSV_DATA.append(["Angolo Nord Reale","Coordinata Est/Ovest","Coordinata Nord/Sud", "Elevazione"])
@@ -101,13 +103,13 @@ Host_Iterator = Host_ProjectPosition.ForwardIterator()
 
 l = []
 while Host_Iterator.MoveNext():
-    l.append(Host_Iterator.Current)
+	l.append(Host_Iterator.Current)
 
 Host_ProjectPosition = l[0].GetProjectPosition(XYZ.Zero)
-Host_Angle = Host_ProjectPosition.Angle
-Host_EastWest = ConvertiUnita(Host_ProjectPosition.EastWest)
-Host_NorthSouth = ConvertiUnita(Host_ProjectPosition.NorthSouth)
-Host_Elevazione = ConvertiUnita(Host_ProjectPosition.Elevation)
+Host_Angle = round(math.degrees(Host_ProjectPosition.Angle),2)
+Host_EastWest = round(ConvertiUnita(Host_ProjectPosition.EastWest),4)
+Host_NorthSouth = round(ConvertiUnita(Host_ProjectPosition.NorthSouth),4)
+Host_Elevazione = round(ConvertiUnita(Host_ProjectPosition.Elevation),4)
 
 COORDINATES_CSV_DATA.append([Host_Angle,Host_EastWest,Host_NorthSouth,Host_Elevazione])
 
@@ -204,10 +206,12 @@ if Scelta == "Si":
 	if folder:
 		copymonitor_csv_path = os.path.join(folder, "CopyMonitorReport_Data.csv")
 		coordination_csv_path = os.path.join(folder, "CoordinationReport_Data.csv")
-		with open(copymonitor_csv_path, mode='w') as file:
+		with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(COORDINATES_CSV_DATA)
+
+		with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
 			writer = csv.writer(file)
 			writer.writerows(COPYMONITOR_CSV_DATA)
 
-		with open(coordination_csv_path, mode='w') as file:
-			writer = csv.writer(file)
-			writer.writerows(COORDINATES_CSV_DATA)
+

@@ -1,12 +1,13 @@
-""" Check di elementi inutilizzati """
+""" Verifica la presenza di elementi inutilizzati """
 
-__title__ = 'Unused Elements\nCheck'
+__title__ = 'Controllo Elementi\nInutilizzati'
 import codecs
 import re
 import unicodedata
 import pyrevit
 from pyrevit import *
 import clr
+import codecs
 import System
 from pyrevit import forms, script
 clr.AddReference('RevitAPI')
@@ -23,8 +24,8 @@ from System.Collections.Generic import *
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document  #type: Document
-uidoc = __revit__.ActiveUIDocument                           
-app   = __revit__.Application        
+uidoc = __revit__.ActiveUIDocument               
+app   = __revit__.Application      
 ##############################################################
 
 
@@ -119,9 +120,9 @@ ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 
 if Scelta == "Si":
-	folder = pyrevit.forms.pick_folder()
-	if folder:
-		unusedelements_csv_path = os.path.join(folder, "UnusedElements_Data.csv")
-		with open(unusedelements_csv_path, mode='w') as file:
-			writer = csv.writer(file)
-			writer.writerows(UNUSED_ELEMENTS_CSV_DATA)
+    folder = pyrevit.forms.pick_folder()
+    if folder:
+        unusedelements_csv_path = os.path.join(folder, "UnusedElements_Data.csv")
+        with codecs.open(unusedelements_csv_path, mode='w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerows(UNUSED_ELEMENTS_CSV_DATA)

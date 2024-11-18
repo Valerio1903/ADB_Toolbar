@@ -1,6 +1,6 @@
-""" Check di verifica dei materiali inutilizzati """
+""" Verifica la presenza di materiali inutilizzati """
 
-__title__ = 'Unused Elements\nCheck'
+__title__ = 'Controllo Materiali\nInutilizzati'
 import codecs
 import re
 import unicodedata
@@ -90,11 +90,11 @@ ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
 
-	folder = pyrevit.forms.pick_folder()
+    folder = pyrevit.forms.pick_folder()
 
-	if folder:
-		unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
-		with open(unusedmaterials_csv_path, mode='w') as file:
-			writer = csv.writer(file)
-			writer.writerows(UNUSED_MATERIALS_CSV_DATA)
+    if folder:
+        unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
+        with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerows(UNUSED_MATERIALS_CSV_DATA)
 
