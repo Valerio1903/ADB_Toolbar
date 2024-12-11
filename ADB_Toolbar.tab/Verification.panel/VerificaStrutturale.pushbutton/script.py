@@ -36,14 +36,11 @@ t = Transaction(doc, "Verifica Strutturale")
 
 ##############################################################
 
-# VERIFICA PRELIMINARE DI SELEZIONE ELEMENTI
-if not uidoc.Selection.GetElementIds():
-	forms.alert("Nessun elemento selezionato tenere gli elementi da analizzare in selezione attiva.")
-	script.exit()
+
 
 # CREAZIONE LISTE DI OUTPUT DATA
 STRUCTURAL_ERROR_CSV_OUTPUT = []
-STRUCTURAL_ERROR_CSV_OUTPUT.append(["Famiglia e Tipo","ID Elemento","Verifica","Stato"])
+STRUCTURAL_ERROR_CSV_OUTPUT.append(["Famiglia e Tipo","ID Elemento","Categoria","Verifica","Stato"])
 
 structural_categories = [
 "OST_StructuralTrussStickSymbols",
@@ -96,7 +93,7 @@ def EstraiFamigliaOggetto(oggetto):
 		except:
 			return "NON TROVATO"
 ######################################################################################
-AllElementsIds = uidoc.Selection.GetElementIds()
+
 
 # DEFINIZIONE COLORI PER TROUBLESHOOTING
 rosso = Color(255, 0, 0)
@@ -114,43 +111,54 @@ Override_ERRATO.SetSurfaceForegroundPatternId(SolidPattern.Id)
 #
 
 # AVVIO VERIFICA
-AllElements = [doc.GetElement(x) for x in AllElementsIds]
+AllElements = FilteredElementCollector(doc,doc.ActiveView.Id).WhereElementIsNotElementType().ToElements()
 Verifica = []
 DataTable = []
 
 t.Start()
 for single_element in AllElements:
-	if single_element.Category.BuiltInCategory.ToString() in structural_categories:
-			Famiglia = EstraiFamigliaOggetto(single_element)
-			Lunghezza = ConvertiUnita(single_element.get_Parameter(BuiltInParameter.INSTANCE_LENGTH_PARAM).AsDouble())
-   
-			if 	Lunghezza > 5:		
-				DataTable.append([Famiglia,output.linkify(single_element.Id),single_element.Category.Name,"Troppo Lungo"])
-				Verifica.append(["Troppo Lungo", single_element, single_element.Id])
-				STRUCTURAL_ERROR_CSV_OUTPUT.append([Famiglia,single_element.Id,single_element.Category.Name,"Troppo Lungo",0])
-				aview.SetElementOverrides(single_element.Id, Override_ERRATO)
-			else:
-				Verifica.append(["Ok", single_element, single_element.Id])
-				STRUCTURAL_ERROR_CSV_OUTPUT.append([Famiglia,single_element.Id,single_element.Category.Name,"Verificato",1])
-				aview.SetElementOverrides(single_element.Id, Override_CORRETTO)
+	if single_element.Category:
+		if single_element.Category.BuiltInCategory.ToString() in structural_categories:
+				Famiglia = EstraiFamigliaOggetto(single_element)
+				Lunghezza = ConvertiUnita(single_element.get_Parameter(BuiltInParameter.INSTANCE_LENGTH_PARAM).AsDouble())
+	
+				if 	Lunghezza > 5:		
+					DataTable.append([Famiglia,output.linkify(single_element.Id),single_element.Category.Name,"Troppo Lungo"])
+					Verifica.append(["Troppo Lungo", single_element, single_element.Id])
+					STRUCTURAL_ERROR_CSV_OUTPUT.append([Famiglia,single_element.Id,single_element.Category.Name,"Troppo Lungo",0])
+					aview.SetElementOverrides(single_element.Id, Override_ERRATO)
+				else:
+					Verifica.append(["Ok", single_element, single_element.Id])
+					STRUCTURAL_ERROR_CSV_OUTPUT.append([Famiglia,single_element.Id,single_element.Category.Name,"Verificato",1])
+					aview.SetElementOverrides(single_element.Id, Override_CORRETTO)
 t.Commit()
 
 # CREAZIONE DELLA VISTA DI OUTPUT
-OrderedData = sorted(DataTable, key=lambda status: status[-1])
+if len(DataTable) != 0:
+	OrderedData = sorted(DataTable, key=lambda status: status[-1])
 
-output = pyrevit.output.get_output()
-output.print_md("# Verifica Lunghezza Elementi Strutturali")
-output.print_md("---")
-output.print_table(table_data = OrderedData, columns = ["Nome Elemento", "ID Elemento","Categoria", "Stato"], formats = ["","","",""])
-output.print_md("---")
-
+	output = pyrevit.output.get_output()
+	output.print_md("# Verifica Lunghezza Elementi Strutturali")
+	output.print_md("---")
+	output.print_table(table_data = OrderedData, columns = ["Nome Elemento", "ID Elemento","Categoria", "Stato"], formats = ["","","",""])
+	output.print_md("---")
+else:
+    output.print_md(":white_heavy_check_mark: **Tutti gli elementi sono della corretta lunghezza.** :white_heavy_check_mark:")
 
 ###OPZIONI ESPORTAZIONE
+def VerificaTotale(lista):
+	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
+
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
+
 	if folder:
+		if VerificaTotale(STRUCTURAL_ERROR_CSV_OUTPUT):
+			STRUCTURAL_ERROR_CSV_OUTPUT.append("Nome Verifica","Stato")
+			STRUCTURAL_ERROR_CSV_OUTPUT.append("Regole di modellazione - Lunghezza elementi strutturali < 5m.",1)
 		parameter_csv_path = os.path.join(folder, "StructuralError_Data.csv")
 		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
 			writer = csv.writer(file)

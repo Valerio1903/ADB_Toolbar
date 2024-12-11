@@ -105,7 +105,9 @@ output.print_md("---")
 
 
 
-# OPZIONI ESPORTAZIONE
+###OPZIONI ESPORTAZIONE
+def VerificaTotale(lista):
+    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
 
 # GENERAZIONE TABELLA
 UNUSED_ELEMENTS_CSV_DATA = []
@@ -118,11 +120,18 @@ for category, elements in Categorie_Inutilizzate.items():
 
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
-
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
-        unusedelements_csv_path = os.path.join(folder, "UnusedElements_Data.csv")
-        with codecs.open(unusedelements_csv_path, mode='w', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerows(UNUSED_ELEMENTS_CSV_DATA)
+        if VerificaTotale(UNUSED_ELEMENTS_CSV_DATA):
+            UNUSED_ELEMENTS_CSV_DATA.append("Nome Verifica","Stato")
+            UNUSED_ELEMENTS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti elementi inutilizzati.",1)
+        else:
+            csv_path = os.path.join(folder, "UnusedElements_Data.csv")
+            with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerows(UNUSED_ELEMENTS_CSV_DATA)
+
+
+
+

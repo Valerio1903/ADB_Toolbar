@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Verifica il corretto coordinamento all'interno del modello, verificando Coordinate Condivise e Copy Monitor  """
 
 __title__ = 'Verifica\nCoordinamento'
@@ -93,8 +94,8 @@ Linked_NorthSouth = round(ConvertiUnita(Link_ProjectPosition.NorthSouth),4)
 Linked_Elevazione = round(ConvertiUnita(Link_ProjectPosition.Elevation),4)
 
 # LA PRIMA RIGA SARA IL MODELLO LINKATO LA SECONDA IL MODELLO HOST
-COORDINATES_CSV_DATA.append(["Angolo Nord Reale","Coordinata Est/Ovest","Coordinata Nord/Sud", "Elevazione"])
-COORDINATES_CSV_DATA.append([Linked_Angle,Linked_EastWest,Linked_NorthSouth,Linked_Elevazione])
+COORDINATES_CSV_DATA.append(["Nome File","Angolo Nord Reale","Coordinata Est/Ovest","Coordinata Nord/Sud", "Elevazione"])
+COORDINATES_CSV_DATA.append([SFL.split(".rvt")[0],Linked_Angle,Linked_EastWest,Linked_NorthSouth,Linked_Elevazione])
 
 # ESTRAGGO INFO DAL MODELLO HOST
 
@@ -111,8 +112,8 @@ Host_EastWest = round(ConvertiUnita(Host_ProjectPosition.EastWest),4)
 Host_NorthSouth = round(ConvertiUnita(Host_ProjectPosition.NorthSouth),4)
 Host_Elevazione = round(ConvertiUnita(Host_ProjectPosition.Elevation),4)
 
-COORDINATES_CSV_DATA.append([Host_Angle,Host_EastWest,Host_NorthSouth,Host_Elevazione])
-
+COORDINATES_CSV_DATA.append([doc.Title,Host_Angle,Host_EastWest,Host_NorthSouth,Host_Elevazione])
+COORDINATES_CSV_DATA.append(["Esito",int(Linked_Angle == Host_Angle),int(Linked_EastWest == Host_EastWest),int(Linked_NorthSouth == Host_NorthSouth),int(Linked_Elevazione == Host_Elevazione)])
 output.print_md("---")
 output.print_md("## Verifica Coordinate Modelli")
 
@@ -139,27 +140,41 @@ else:
 output.print_md("---")
 output.print_md("## Verifica Griglie e Livelli")
 
-COPYMONITOR_CSV_DATA.append(["Verifica","Element ID","Nome Elemento"])
+COPYMONITOR_CSV_DATA.append(["Id Elemento","Nome Elemento","Pin Attivo","Copy-Monitor","Stato"])
 # CHECK GRIGLIE
 if Host_Grids:
 	for Host_Grid in Host_Grids:
 		temp = []
+
+
+		temp.append(output.linkify((Host_Grid.Id)))
+		temp.append(Host_Grid.Name)
+
 		if Host_Grid.IsMonitoringLinkElement():
 			temp.append(":white_heavy_check_mark:")
 			CSV_VALUE = "Monitoring"
+			MONITOR = 1
 		else:
 			temp.append(":cross_mark:")
 			CSV_VALUE = "Not Monitoring"
 			ErrorCounter += 1
-
-		temp.append(output.linkify((Host_Grid.Id)))
-		temp.append(Host_Grid.Name)
-		#temp.append(Host_Grid.IsMonitoringLinkElement())
-
-		COPYMONITOR_CSV_DATA.append([CSV_VALUE,Host_Grid.Id,Host_Grid.Name])
+			MONITOR = 0
+		
+		if not Host_Grid.Pinned:
+			temp.append(":cross_mark:")
+			PIN = 0
+		else:
+			temp.append(":white_heavy_check_mark:")
+			PIN = 1
+		
+		STATUS = 0
+		if MONITOR and PIN:
+			STATUS = 1
+		
+		COPYMONITOR_CSV_DATA.append([Host_Grid.Id,Host_Grid.Name,PIN,MONITOR,STATUS])
 		Grids_Status.append(temp)
 	#output.print_md("**ATTENZIONE, QUESTE GRIGLIE NON STANNO COPY-MONITORANDO NULLA**")
-	output.print_table(table_data = Grids_Status,title = "Verifica Copy-Monitor Griglie", columns = ["Verifica","Element Id","Nome Griglia"],formats = ["","",""])
+	output.print_table(table_data = Grids_Status,title = "Verifica Copy-Monitor Griglie", columns = ["Id Elemento","Nome Griglia","Copy-Monitor","Pin Attivo"],formats = ["","",""])
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, NON SONO PRESENTI GRIGLIE NEL MODELLO**")
 
@@ -167,26 +182,44 @@ else:
 if Host_Levels:
 	for Host_Level in Host_Levels:
 		temp = []
+
+
+		temp.append(output.linkify((Host_Level.Id)))
+		temp.append(Host_Level.Name)
+		
 		if Host_Level.IsMonitoringLinkElement():
 			temp.append(":white_heavy_check_mark:")
 			CSV_VALUE = "Monitoring"
+			check_Monitor = 1
+			MONITOR = "Monitorato"
 		else:
 			temp.append(":cross_mark:")
 			CSV_VALUE = "Not Monitoring"
 			ErrorCounter += 1
+			check_Monitor = 0
+			MONITOR = "Non Monitorato"
 
-		temp.append(output.linkify((Host_Level.Id)))
-		temp.append(Host_Level.Name)
-		#temp.append(Host_Level.IsMonitoringLinkElement())
-
-		COPYMONITOR_CSV_DATA.append([CSV_VALUE,Host_Level.Id,Host_Level.Name])
+		if not Host_Level.Pinned:
+			temp.append(":cross_mark:")
+			check_PIN = 0
+			PIN = "Non Pinnato"
+		else:
+			temp.append(":white_heavy_check_mark:")
+			check_PIN = 1
+			PIN = "Pinnato"
+		
+		STATUS = 0
+		if check_Monitor and check_PIN:
+			STATUS = 1
+		
+		COPYMONITOR_CSV_DATA.append([Host_Level.Id,Host_Level.Name,PIN,MONITOR,STATUS])
 		Levels_Status.append(temp)
 	#output.print_md("**ATTENZIONE, QUESTI LIVELLI NON STANNO COPY-MONITORANDO NULLA**")
-	output.print_table(table_data = Levels_Status,title = "Verifica Copy-Monitor Livelli", columns = ["Verifica","Element Id","Nome Livello"],formats = ["","",""])
+	output.print_table(table_data = Levels_Status,title = "Verifica Copy-Monitor Livelli", columns = ["Id Elemento","Nome Livello","Copy-Monitor","Pin Attivo"],formats = ["","",""])
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, NON SONO PRESENTI LIVELLI NEL MODELLO**")
 
-
+"""
 output.print_md("---")
 if ErrorCounter == 1:
 	output.print_md("_E' STATO RILEVATO 1 ERRORE_!")
@@ -195,23 +228,43 @@ elif ErrorCounter > 1:
 else:
 	output.print_md("_NON SONO STATI RILEVATI ERRORI_")
 output.print_md("---")
+"""
+
 
 ###OPZIONI ESPORTAZIONE
+def VerificaTotale(lista):
+	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
+
 if Scelta == "Si":
-
 	folder = pyrevit.forms.pick_folder()
-
 	if folder:
-		copymonitor_csv_path = os.path.join(folder, "CopyMonitorReport_Data.csv")
-		coordination_csv_path = os.path.join(folder, "CoordinationReport_Data.csv")
-		with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
-			writer = csv.writer(file)
-			writer.writerows(COORDINATES_CSV_DATA)
+		if VerificaTotale(COPYMONITOR_CSV_DATA):
+			COPYMONITOR_CSV_DATA = []
+			COPYMONITOR_CSV_DATA.append(["Nome Verifica","Stato"])
+			COPYMONITOR_CSV_DATA.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
+			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
+			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(COPYMONITOR_CSV_DATA)
+		else:
+			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
+			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(COPYMONITOR_CSV_DATA)
 
-		with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-			writer = csv.writer(file)
-			writer.writerows(COPYMONITOR_CSV_DATA)
-
-
+		if VerificaTotale(COORDINATES_CSV_DATA):
+			COORDINATES_CSV_DATA = []
+			COORDINATES_CSV_DATA.append(["Nome Verifica","Stato"])
+			COORDINATES_CSV_DATA.append(["Georeferenziazione e Orientamento - Coordinate e Nord di progetto correttamente valorizzato.",1])
+			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
+			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(COORDINATES_CSV_DATA)
+		else:
+			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
+			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(COORDINATES_CSV_DATA) 

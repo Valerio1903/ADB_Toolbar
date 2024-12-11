@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica Nomenclatura Parametri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .dropdown {
+            margin: 10px 0;
+        }
+        .dropdown button {
+            background-color: #efefef;
+            color: rgb(28, 28, 28);
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+        .dropdown button:hover {
+            background-color: #d2d2d2;
+            padding-block: 15px;
+            transition: padding 0.2s ease-in-out;
+        }
+        p {
+            font-style:italic;
+        }
+        .dropdown-content {
+            display: none;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status-success {
+            color: white;
+            background-color: rgb(62, 158, 62);
+            padding: 5px;
+            /*border-radius: 4px;*/
+            text-align: center;
+        }
+        .status-failed {
+            color: white;
+            background-color: rgb(255, 78, 78);
+            padding: 5px;
+
+            /*border-radius: 4px;*/
+            text-align: center;
+            display: block;
+            width: 95%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Verifica Nomenclatura Parametri</h1>
+    <p>Seleziona il file CSV di verifica.</p>
+    <input type="file" id="fileInput" accept=".csv">
+    <div id="container"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    parseCSV(content);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function parseCSV(content) {
+            const rows = content.split('\n').filter(row => row.trim() !== '');
+            const header = rows[0].split(',');
+            const data = rows.slice(1).map(row => row.split(','));
+
+            const groupedData = {};
+            data.forEach(row => {
+                const group = row[0]; // Prima colonna come gruppo
+                if (!groupedData[group]) {
+                    groupedData[group] = [];
+                }
+                groupedData[group].push(row);
+            });
+
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+
+            Object.keys(groupedData).forEach(group => {
+                // Creazione del dropdown per ogni gruppo
+                const dropdown = document.createElement('div');
+                dropdown.className = 'dropdown';
+
+                const button = document.createElement('button');
+                button.textContent = group;
+                button.addEventListener('click', function() {
+                    const content = this.nextElementSibling;
+                    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                });
+
+                const dropdownContent = document.createElement('div');
+                dropdownContent.className = 'dropdown-content';
+
+                // Creazione della tabella
+                const table = document.createElement('table');
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th>ID Tipo</th>
+                        <th>Nome Parametro</th>
+                        <th>Esito Verifica</th>
+                        <th>Stato</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                groupedData[group].forEach(row => {
+                    const tr = document.createElement('tr');
+
+                    // ID Tipo
+                    const typeId = document.createElement('td');
+                    typeId.textContent = row[1];
+                    tr.appendChild(typeId);
+
+                    // Nome Parametro
+                    const paramName = document.createElement('td');
+                    paramName.textContent = row[2];
+                    tr.appendChild(paramName);
+
+                    // Esito Verifica
+                    const verificationResult = document.createElement('td');
+                    verificationResult.textContent = row[3];
+                    tr.appendChild(verificationResult);
+
+                    // Stato
+                    const status = document.createElement('td');
+                    const statusText = document.createElement('span');
+                    if (row[4].trim() === '1') {
+                        statusText.textContent = 'Successo';
+                        statusText.className = 'status-success';
+                    } else {
+                        statusText.textContent = 'Fallito';
+                        statusText.className = 'status-failed';
+                    }
+                    status.appendChild(statusText);
+                    tr.appendChild(status);
+
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                dropdownContent.appendChild(table);
+                dropdown.appendChild(button);
+                dropdown.appendChild(dropdownContent);
+                container.appendChild(dropdown);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -85,16 +85,21 @@ else:
     output.print_md(":white_heavy_check_mark: **NON SONO PRESENTI ELEMENTI NON UTILIZZATI**")
 output.print_md("---")
 
-# OPZIONI ESPORTAZIONE
+###OPZIONI ESPORTAZIONE
+def VerificaTotale(lista):
+    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
-
     folder = pyrevit.forms.pick_folder()
-
+    
     if folder:
-        unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
-        with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerows(UNUSED_MATERIALS_CSV_DATA)
-
+        if VerificaTotale(UNUSED_MATERIALS_CSV_DATA):
+            UNUSED_MATERIALS_CSV_DATA.append("Nome Verifica","Stato")
+            UNUSED_MATERIALS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti materiali inutilizzati.",1)
+        else:
+            unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
+            with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerows(UNUSED_MATERIALS_CSV_DATA)

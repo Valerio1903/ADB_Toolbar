@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Verifica la presenza di parametri condivisi e, se trovati, verifica la corrispondenza dei GUID  """
 
 __title__ = 'Verifica Parametri\nCondivisi'
@@ -30,6 +31,7 @@ app   = __revit__.Application
 
 # CREAZIONE LISTE DI OUTPUT DATA
 PARAMETERS_CSV_DATA = []
+PARAMETERS_CSV_DATA.append(["Nome Verifica","Stato"])
 
 # CREAZIONE DELLA VISTA DI OUTPUT
 output = pyrevit.output.get_output()
@@ -41,6 +43,7 @@ shared_params_file = app.OpenSharedParameterFile()
 
 if not shared_params_file:
 	output.print_md(":cross_mark: ***FILE DEI PARAMETRI CONDIVISI NON TROVATO ALL'INTERNO DEL PROGETTO***")
+	PARAMETERS_CSV_DATA.append(["FILE DEI PARAMETRI CONDIVISI NON TROVATO ALL'INTERNO DEL PROGETTO",0])
 else:
 	ParametersFromFile = []
 	ParametersFromFileClean = []
@@ -109,15 +112,29 @@ if ParametersFromRVT:
 	output.print_md("## Verifica Corrispondenza")
 	output.print_table(table_data = OutputResult,columns = ["Nome Parametro","GUID","Condiviso ?"], formats = ["","",""])			
 else:
-	PARAMETERS_CSV_DATA.append(["Non ci sono","Parametri","Nel File"])
 	output.print_md(":cross_mark: **ATTENZIONE, NON CI SONO PARAMETRI DI PROGETTO NEL FILE**")
+	PARAMETERS_CSV_DATA.append(["ATTENZIONE, NON CI SONO PARAMETRI DI PROGETTO NEL FILE",0])
+
 ###OPZIONI ESPORTAZIONE
+def VerificaTotale(lista):
+	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+
+
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
-		parameter_csv_path = os.path.join(folder, "SharedParameters_Data.csv")
-		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-			writer = csv.writer(file)
-			writer.writerows(PARAMETERS_CSV_DATA)
+		if VerificaTotale(PARAMETERS_CSV_DATA):
+			PARAMETERS_CSV_DATA = []
+			PARAMETERS_CSV_DATA.append(["Nome Verifica","Stato"])
+			PARAMETERS_CSV_DATA.append(["Integrità e pulizia file - Parametri correttamente valorizzati.",1])
+			parameter_csv_path = os.path.join(folder, "10_01_SharedParameters_Data.csv")
+			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(PARAMETERS_CSV_DATA)
+		else:
+			parameter_csv_path = os.path.join(folder, "10_01_SharedParameters_Data.csv")
+			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(PARAMETERS_CSV_DATA)

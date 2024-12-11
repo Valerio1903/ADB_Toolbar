@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Verifica la corretta collocazione altimetrica degli elementi rispetto al livello di host  """
 
 __title__ = 'Verifica Offset\nElementi'
@@ -28,20 +29,14 @@ from decimal import Decimal, ROUND_DOWN, getcontext
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document  #type: Document
-uidoc = __revit__.ActiveUIDocument                           
-app   = __revit__.Application        
+uidoc = __revit__.ActiveUIDocument						   
+app   = __revit__.Application		
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
 t = Transaction(doc, "TROUBLESHOOTING")
 
 ##############################################################
-
-# VERIFICA PRELIMINARE DI SELEZIONE ELEMENTI
-if not uidoc.Selection.GetElementIds():
-	forms.alert("Nessun elemento selezionato tenere gli elementi da analizzare in selezione attiva.")
-	script.exit()
-
 
 # CREAZIONE LISTE DI OUTPUT DATA
 OFFSET_CSV_DATA = []
@@ -67,38 +62,38 @@ ValoriUtente = form.values
 # CATEGORIE MEP
 
 mep_built_in_categories = [
-    "OST_ElectricalFixtures",
-    "OST_LightingFixtures",
-    "OST_LightingDevices",
-    "OST_CableTray",
-    "OST_CableTrayFitting",
-    "OST_Conduit",
-    "OST_ConduitFitting",
-    "OST_DataDevices",
-    "OST_FireAlarmDevices",
-    "OST_NurseCallDevices",
-    "OST_SecurityDevices",
-    "OST_TelephoneDevices",
-    "OST_CommunicationDevices",
-    "OST_DuctCurves",
-    "OST_DuctFitting",
-    "OST_DuctAccessory",
-    "OST_DuctInsulations",
-    "OST_DuctLinings",
-    "OST_DuctSystem",
-    "OST_MechanicalEquipment",
-    "OST_PipeCurves",
-    "OST_PipeFitting",
-    "OST_PipeAccessory",
-    "OST_PlumbingFixtures",
-    "OST_PipeInsulations",
-    "OST_Sprinklers",
-    "OST_PipingSystem",
-    "OST_DuctTerminal"
+	"OST_ElectricalFixtures",
+	"OST_LightingFixtures",
+	"OST_LightingDevices",
+	"OST_CableTray",
+	"OST_CableTrayFitting",
+	"OST_Conduit",
+	"OST_ConduitFitting",
+	"OST_DataDevices",
+	"OST_FireAlarmDevices",
+	"OST_NurseCallDevices",
+	"OST_SecurityDevices",
+	"OST_TelephoneDevices",
+	"OST_CommunicationDevices",
+	"OST_DuctCurves",
+	"OST_DuctFitting",
+	"OST_DuctAccessory",
+	"OST_DuctInsulations",
+	"OST_DuctLinings",
+	"OST_DuctSystem",
+	"OST_MechanicalEquipment",
+	"OST_PipeCurves",
+	"OST_PipeFitting",
+	"OST_PipeAccessory",
+	"OST_PlumbingFixtures",
+	"OST_PipeInsulations",
+	"OST_Sprinklers",
+	"OST_PipingSystem",
+	"OST_DuctTerminal"
 ]
 structural_built_in_categories = [
-    "OST_StructuralColumns",
-    "OST_StructuralFraming",
+	"OST_StructuralColumns",
+	"OST_StructuralFraming",
 ]
 # CONVERTO STRINGHE IN ATTRIBUTI DI BUILTINCATEGORY
 mep_built_in_category_enums = [getattr(BuiltInCategory, category) for category in mep_built_in_categories]
@@ -133,8 +128,8 @@ Spessore_ARC = float(ValoriUtente['sp_arc'])
 Spessore_STR = float(ValoriUtente['sp_str'])
 Spessore_Totale = Spessore_ARC + Spessore_STR
 
-# TENERE IN SELEZIONE ATTIVA GLI ELEMENTI DA ANALIZZARE
-AllElementsIds = uidoc.Selection.GetElementIds()
+output.print_md("# Verifica Offset Elementi")
+output.print_md("---")
 
 # GESTIONE LIVELLI E SORTING PER CONSEQUENZIALITA (BYPASSA EVENTUALI ERRORI IN ORDINE DI CREAZIONE)
 
@@ -193,13 +188,16 @@ Override_BASSO.SetProjectionLineColor(blu)
 
 
 # AVVIO VERIFICA
-AllElements = [doc.GetElement(x) for x in AllElementsIds]
+AllElements = FilteredElementCollector(doc,doc.ActiveView.Id).WhereElementIsNotElementType().ToElements()
 Verifica = []
 DataTable = []
+
 
 t.Start()
 
 for single_element in AllElements:
+	if single_element.Category and single_element.Category.BuiltInCategory == BuiltInCategory.OST_Cameras:
+		continue
 	Famiglia = EstraiFamigliaOggetto(single_element)
 	Livello_Oggetto = single_element.LevelId
 	if Livello_Oggetto.Value > 0:
@@ -222,51 +220,69 @@ for single_element in AllElements:
 				PuntoCalcolo = Max_Elev
 			else:
 				PuntoCalcolo = Mid_Elev
-		if MathComparisonUtils.IsAlmostEqual(PuntoCalcolo, Range[0]):
-					aview.SetElementOverrides(single_element.Id, Override_CORRETTO)
-					Verifica.append(["Ok", single_element, single_element.Id])
-		elif PuntoCalcolo > Range[1]:
-			aview.SetElementOverrides(single_element.Id, Override_ALTO)
-			Verifica.append(["Troppo Alto", single_element, single_element.Id])
-			DataTable.append([Famiglia,output.linkify(single_element.Id),single_element.Category.Name,"Troppo Alto"])
-			OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"Troppo Alto",0])
-		elif PuntoCalcolo < Range[0]:
-			aview.SetElementOverrides(single_element.Id, Override_BASSO)
-			Verifica.append(["Troppo Basso", single_element, single_element.Id])
-			DataTable.append([Famiglia,output.linkify(single_element.Id),single_element.Category.Name,"Troppo Basso"])
-			OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"Troppo Basso",0])
-		else:
-			aview.SetElementOverrides(single_element.Id, Override_CORRETTO)
-			Verifica.append(["Ok", single_element, single_element.Id])
-			OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"Verificato",1])
-			#DataTable.append([single_element.get_Parameter(ELEM_FAMILY_AND_TYPE_PARAM).AsValueString(),single_element.Category.Name,"Posizionamento Corretto"])
+		if single_element.Category:
+			if MathComparisonUtils.IsAlmostEqual(PuntoCalcolo, Range[0]):
+						aview.SetElementOverrides(single_element.Id, Override_CORRETTO)
+						Verifica.append(["Ok", single_element, single_element.Id])
+			elif PuntoCalcolo > Range[1]:
+				aview.SetElementOverrides(single_element.Id, Override_ALTO)
+				Verifica.append(["Troppo Alto", single_element, single_element.Id])
+				DataTable.append([Famiglia,output.linkify(single_element.Id),single_element.Category.Name,"Troppo Alto"])
+				OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"Troppo Alto",0])
+			elif PuntoCalcolo < Range[0]:
+				aview.SetElementOverrides(single_element.Id, Override_BASSO)
+				Verifica.append(["Troppo Basso", single_element, single_element.Id])
+				DataTable.append([Famiglia,output.linkify(single_element.Id),single_element.Category.Name,"Troppo Basso"])
+				OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"Troppo Basso",0])
+			else:
+				aview.SetElementOverrides(single_element.Id, Override_CORRETTO)
+				Verifica.append(["Ok", single_element, single_element.Id])
+				OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"Verificato",1])
+				#DataTable.append([single_element.get_Parameter(ELEM_FAMILY_AND_TYPE_PARAM).AsValueString(),single_element.Category.Name,"Posizionamento Corretto"])
 	else:
 		Verifica.append(["No BoundingBox", single_element, single_element.Id])
-		OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category.Name,"ELEMENTO NON VERIFICABILE",0])
+		#OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category,"ELEMENTO NON VERIFICABILE",0])
 
 t.Commit()
 
 # CREAZIONE DELLA VISTA DI OUTPUT
+if len(DataTable) != 0:
+	OrderedData = sorted(DataTable, key=lambda status: status[-1])
 
-OrderedData = sorted(DataTable, key=lambda status: status[-1])
-
-output = pyrevit.output.get_output()
-output.print_md("# Verifica Offset Da Livello Elementi")
-output.print_md("---")
-output.print_md("***Spessore Architettonico: {}m Spessore Strutturale : {}m***".format(Spessore_ARC,Spessore_STR))
-output.print_md("---")
-output.print_table(table_data = OrderedData, columns = ["Nome Elemento", "ID Elemento","Categoria", "Stato"], formats = ["","","",""])
-output.print_md("---")
-
+	output = pyrevit.output.get_output()
+	output.print_md("# Verifica Offset Da Livello Elementi")
+	output.print_md("---")
+	output.print_md("***Spessore Architettonico: {}m Spessore Strutturale : {}m***".format(Spessore_ARC,Spessore_STR))
+	output.print_md("---")
+	output.print_table(table_data = OrderedData, columns = ["Nome Elemento", "ID Elemento","Categoria", "Stato"], formats = ["","","",""])
+	output.print_md("---")
+else:
+	output.print_md(":white_heavy_check_mark: **Tutti gli elementi sono inseriti correttamente.** :white_heavy_check_mark:")
 
 ###OPZIONI ESPORTAZIONE
+def VerificaTotale(lista):
+	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+
 ops = ["Si", "No"]
 Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV ?")
 if Scelta == "Si":
-    folder = pyrevit.forms.pick_folder()
-    if folder:
-        parameter_csv_path = os.path.join(folder, "ElementOffset_Data.csv")
-        # Use codecs to open the file with UTF-8 encoding
-        with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerows(OFFSET_CSV_DATA)
+	folder = pyrevit.forms.pick_folder()
+	if folder:
+		if VerificaTotale(OFFSET_CSV_DATA):
+			OFFSET_CSV_DATA = []
+			OFFSET_CSV_DATA.append(["Nome Verifica","Stato"])
+			OFFSET_CSV_DATA.append(["Regole di modellazione - Elementi posizionati correttamente.",1])
+			parameter_csv_path = os.path.join(folder, "13_XX_ElementOffset_Data.csv")
+			# Use codecs to open the file with UTF-8 encoding
+			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(OFFSET_CSV_DATA)
+		else:
+			parameter_csv_path = os.path.join(folder, "13_XX_ElementOffset_Data.csv")
+			# Use codecs to open the file with UTF-8 encoding
+			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(OFFSET_CSV_DATA)
+
+
+
