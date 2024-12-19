@@ -306,19 +306,19 @@ for Elemento in Collector_IFC_Valorizzato:
         
         if IFC_Class_Verifica == ":white_heavy_check_mark:" and IFC_Predef_Verifica == ":white_heavy_check_mark:":
             Verifica = "Corretto"
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Current_Predef,Current_IfcClass,Verifica,1])
+            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Verifica,1])
             #DataTable.append([Nome_Famiglia,Nome_Tipo,Categoria,output.linkify(ID_Elemento),Tipologia,IFC_Class_Verifica,IFC_Predef_Verifica])
         elif IFC_Class_Verifica == ":white_heavy_check_mark:" and IFC_Predef_Verifica == ":cross_mark:":
             Verifica = "IFC PREDEF TYPE errato"
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Current_Predef,Current_IfcClass,Verifica,0])
+            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Verifica,0])
             DataTable.append([Nome_Famiglia,Nome_Tipo,Categoria,output.linkify(ID_Elemento),Tipologia,IFC_Class_Verifica,IFC_Predef_Verifica])
         elif IFC_Class_Verifica == ":cross_mark:" and IFC_Predef_Verifica == ":white_heavy_check_mark:":
             Verifica = "IFC CLASS errata"
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Current_Predef,Current_IfcClass,Verifica,0])
+            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Verifica,0])
             DataTable.append([Nome_Famiglia,Nome_Tipo,Categoria,output.linkify(ID_Elemento),Tipologia,IFC_Class_Verifica,IFC_Predef_Verifica])
         else:
             Verifica = "IFC CLASS e IFC PREDEF TYPE errati"
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Current_Predef,Current_IfcClass,Verifica,0])
+            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Verifica,0])
             DataTable.append([Nome_Famiglia,Nome_Tipo,Categoria,output.linkify(ID_Elemento),Tipologia,IFC_Class_Verifica,IFC_Predef_Verifica])
 
 output.freeze()
@@ -360,76 +360,3 @@ if Scelta == "Si":
                 writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-
-
-
-    ## Verifica e il valore corrisponde al database
-    elif DizionarioDiVerifica[Elemento.Category.Name]:
-        Current_Predef = Elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_PREDEFINEDTYPE).AsValueString()
-        Current_IfcClass = Elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_ELEMENT_AS).AsValueString()
-        Regroup = []
-
-        for Sublist in DizionarioDiVerifica[Elemento.Category.Name]:
-            temp = []
-            Check1, Check2 = False, False
-            if Current_IfcClass in Sublist:
-                Check1 = True
-                
-            if Current_Predef in Sublist:
-                Check2 = True
-            if Check1 and Check2:
-                temp.append([Check1,Check2])
-                Regroup.append(temp)
-                break
-            temp.append([Check1,Check2])
-            Regroup.append(temp)
-            
-        print(Regroup)
-        #print(Elemento.Id)
-    else:
-        print("Casino imper")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# CREAZIONE DELLA VISTA DI OUTPUT
-OrderedData = sorted(DataTable, key=lambda status: status[2])
-if len(OrderedData) != 0:
-    output.freeze()
-    output = pyrevit.output.get_output()
-    output.print_md("# Verifica Elementi 'IFCSaveAs' Non Valorizzati")
-    output.print_md("---")
-    output.print_table(table_data = OrderedData, columns = ["Nome Famiglia", "Nome Tipo","Categoria", "ID Elemento","Tipologia"], formats = ["","","","",""])
-    output.print_md("---")
-    output.unfreeze()
-else:
-    output.print_md("# Verifica Elementi 'IFCSaveAs' Non Valorizzati")
-    output.print_md("---")
-    output.print_md(":white_heavy_check_mark: **TUTTI GLI ELEMENTI SONO VALORIZZATI CORRETTAMENTE** :white_heavy_check_mark:")
-
-
-"""
