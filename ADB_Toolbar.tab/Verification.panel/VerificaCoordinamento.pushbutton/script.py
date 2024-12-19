@@ -114,27 +114,31 @@ Host_Elevazione = round(ConvertiUnita(Host_ProjectPosition.Elevation),4)
 
 COORDINATES_CSV_DATA.append([doc.Title,Host_Angle,Host_EastWest,Host_NorthSouth,Host_Elevazione])
 COORDINATES_CSV_DATA.append(["Esito",int(Linked_Angle == Host_Angle),int(Linked_EastWest == Host_EastWest),int(Linked_NorthSouth == Host_NorthSouth),int(Linked_Elevazione == Host_Elevazione)])
+
 output.print_md("---")
 output.print_md("## Verifica Coordinate Modelli")
 
 if Linked_Angle == Host_Angle:
 	output.print_md(":white_heavy_check_mark: **ANGOLO CONFORME TRA I DUE MODELLI**")
+	output.print_md("**Angolo Linkato : {0} - Angolo Host : {1}**".format(Linked_Angle,Host_Angle))
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, ANGOLO NON CONFORME TRA I DUE MODELLI!**")
-	output.print_md("Angolo Linkato : {0} - Angolo Host : {1}".format(Linked_Angle,Host_Angle))
+	output.print_md("**Angolo Linkato : {0} - Angolo Host : {1}**".format(Linked_Angle,Host_Angle))
 	ErrorCounter += 1
 
 if Linked_EastWest == Host_EastWest and Linked_NorthSouth == Host_NorthSouth:
 	output.print_md(":white_heavy_check_mark: **COORDINATE CONFORMI TRA I DUE MODELLI**")
+	output.print_md("**Coordinate Linkato E/W & N/S: {0},{1} - Coordinate Host E/W & N/S: {2},{3}**".format(Linked_EastWest,Linked_NorthSouth,Host_EastWest,Host_NorthSouth))
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, COORDINATE NON CONFORMI TRA I DUE MODELLI!**")
-	output.print_md("Coordinate Linkato E/W & N/S: {0},{1} - Coordinate Host E/W & N/S: {2},{3}".format(Linked_EastWest,Linked_NorthSouth,Host_EastWest,Host_NorthSouth))
+	output.print_md("**Coordinate Linkato E/W & N/S: {0},{1} - Coordinate Host E/W & N/S: {2},{3}**".format(Linked_EastWest,Linked_NorthSouth,Host_EastWest,Host_NorthSouth))
 	ErrorCounter += 1
 if Linked_Elevazione == Host_Elevazione:
 	output.print_md(":white_heavy_check_mark: **ELEVAZIONE CONFORME TRA I DUE MODELLI**")
+	output.print_md("**Elevazione Linkato : {0} - Elevazione Host : {1}**".format(Linked_Elevazione,Host_Elevazione))
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, ELEVAZIONE NON CONFORME TRA I DUE MODELLI!**")
-	output.print_md("Elevazione Linkato : {0} - Elevazione Host : {1}".format(Linked_Elevazione,Host_Elevazione))
+	output.print_md("**Elevazione Linkato : {0} - Elevazione Host : {1}**".format(Linked_Elevazione,Host_Elevazione))
 	ErrorCounter += 1
 
 output.print_md("---")
@@ -219,16 +223,7 @@ if Host_Levels:
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, NON SONO PRESENTI LIVELLI NEL MODELLO**")
 
-"""
-output.print_md("---")
-if ErrorCounter == 1:
-	output.print_md("_E' STATO RILEVATO 1 ERRORE_!")
-elif ErrorCounter > 1:
-	output.print_md("_SONO PRESENTI {0} ERRORI!_".format(ErrorCounter))
-else:
-	output.print_md("_NON SONO STATI RILEVATI ERRORI_")
-output.print_md("---")
-"""
+
 
 
 ###OPZIONI ESPORTAZIONE
@@ -255,7 +250,13 @@ if Scelta == "Si":
 				writer = csv.writer(file)
 				writer.writerows(COPYMONITOR_CSV_DATA)
 
-		if VerificaTotale(COORDINATES_CSV_DATA):
+		if 0 in COORDINATES_CSV_DATA[-1]:
+			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
+			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(COORDINATES_CSV_DATA) 
+			
+		else:
 			COORDINATES_CSV_DATA = []
 			COORDINATES_CSV_DATA.append(["Nome Verifica","Stato"])
 			COORDINATES_CSV_DATA.append(["Georeferenziazione e Orientamento - Coordinate e Nord di progetto correttamente valorizzato.",1])
@@ -263,8 +264,3 @@ if Scelta == "Si":
 			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(COORDINATES_CSV_DATA)
-		else:
-			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
-			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(COORDINATES_CSV_DATA) 
