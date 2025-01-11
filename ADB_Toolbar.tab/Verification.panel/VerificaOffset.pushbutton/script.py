@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Verifica la corretta collocazione altimetrica degli elementi rispetto al livello di host  """
-
+__author__= 'Roberto Dolfini'
 __title__ = 'Verifica Offset\nElementi'
 
 import codecs
