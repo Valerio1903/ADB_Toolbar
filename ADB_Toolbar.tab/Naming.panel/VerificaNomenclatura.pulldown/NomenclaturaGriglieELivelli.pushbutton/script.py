@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ Verifica la corretta nomenclatura di griglie e livelli  """
+__author__= 'Roberto Dolfini'
 __title__ = 'Check Nomenclatura Livelli'
 
 ######################################
@@ -49,7 +50,7 @@ output = pyrevit.output.get_output()
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_StrutturaNomenclaturaLivelli.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir, '..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Livelli.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
@@ -58,28 +59,8 @@ output = pyrevit.output.get_output()
 GRID_LEVELS_NAMING_CSV_OUTPUT = []
 GRID_LEVELS_NAMING_CSV_OUTPUT.append(["Categoria","Nome Elemento","ID Elemento","Stato"])
 ##############################################################
-"""
-def VerificaCodifica(nome, riferimento):
-    mappa_regex = {'X': '[A-Z]', 'x': '[a-z]', 'n': '\\d', 'A': 'A', 'm':'m', '-':'-'}
-        
-    # DIVIDI IN BLOCCHI BASANDOTI SUL DELIMITATORE (ES. '_')
-    blocchi_nome = nome.split('_')
-    blocchi_riferimento = riferimento.split('_')
-        
-    # CONTROLLA SE IL NUMERO DI BLOCCHI CORRISPONDE
-    if len(blocchi_nome) != len(blocchi_riferimento):
-        return False, "Numero blocchi errato: Attesi {}, Trovati {}. Nome : {}".format(len(blocchi_riferimento), len(blocchi_nome),nome)
-        
-    # CONFRONTA BLOCCO PER BLOCCO
-    for i, (blocco_nome, blocco_ref) in enumerate(zip(blocchi_nome, blocchi_riferimento)):
-        if i == 3 and blocco_nome == "All":  # ECCEZIONE PER IL BLOCCO 3
-            continue
-        regex = ''.join(mappa_regex.get(char, re.escape(char)) for char in blocco_ref)
-        if not re.match("^{}$".format(regex), blocco_nome):  # SIMULA FULLMATCH
-            return False, "Errore nel blocco {} ('{}'): Atteso '{}'. Nome : {}".format(i + 1, blocco_nome, blocco_ref,nome)
-        
-    return True, "Il nome rispetta il formato."
-"""
+
+
 
 def FormattaNumero(numero):
     if numero >= 0:
@@ -134,7 +115,7 @@ for Livello in Collector_Livelli:
     VERIFICA = None  # Initialize VERIFICA to track error messages
 
     if len(Nome.split("_")) != 5:
-        VERIFICA = "Nome incorretto"
+        VERIFICA = "Lunghezza nome livello errata"
         SIMBOLO = ":cross_mark:"
         VALUE = 0
     else:
@@ -192,12 +173,12 @@ if Scelta == "Si":
             GRID_LEVELS_NAMING_CSV_OUTPUT = []
             GRID_LEVELS_NAMING_CSV_OUTPUT.append(["Nome Verifica","Stato"])
             GRID_LEVELS_NAMING_CSV_OUTPUT.append(["Naming Convention - Nomenclatura Griglie e Livelli.",1])
-            gridsandlevels_csv_path = os.path.join(folder, "12_XX_GriglieELivelli_Data.csv")
+            gridsandlevels_csv_path = os.path.join(folder, "12_GriglieELivelli_Data.csv")
             with codecs.open(gridsandlevels_csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(GRID_LEVELS_NAMING_CSV_OUTPUT)
         else:
-            gridsandlevels_csv_path = os.path.join(folder, "12_XX_GriglieELivelli_Data.csv")
+            gridsandlevels_csv_path = os.path.join(folder, "12_GriglieELivelli_Data.csv")
             with codecs.open(gridsandlevels_csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(GRID_LEVELS_NAMING_CSV_OUTPUT)
