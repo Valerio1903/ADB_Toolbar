@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ Verifica la corretta nomenclatura dei materiali presenti  """
+__author__= 'Roberto Dolfini'
 __title__ = 'Check Nomenclatura Materiali'
 
 ######################################
@@ -190,7 +191,7 @@ if Scelta == "Si":
             MATERIAL_NAMING_CSV_OUTPUT.append("Nome Verifica","Stato")
             MATERIAL_NAMING_CSV_OUTPUT.append("Naming Convention - Nomenclatura Materiali.",1)
         else:
-            csv_path = os.path.join(folder, "Nomenclatura_Materiali.csv")
+            csv_path = os.path.join(folder, "12_CSV_Nomenclatura_Materiali.csv")
             with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(MATERIAL_NAMING_CSV_OUTPUT)
