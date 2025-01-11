@@ -1,23 +1,15 @@
 # -*- coding: utf-8 -*-
 
-""" Verifica la corretta nomenclatura delle fasi presenti  """
-__title__ = 'Check Nomenclatura Fasi'
+""" Verifica l'assegnazione della fase corretta ai diversi elementi presenti in vista  """
 
-######################################
+__author__ = 'Roberto Dolfini'
+__title__ = 'Verifica Nomenclatura Fasi'
 
-import Autodesk.Revit
-import Autodesk.Revit.DB
-import Autodesk.Revit.DB.Architecture
-import pyrevit
-from pyrevit import forms, script
 import codecs
 import re
-from re import *
-from Autodesk.Revit.DB import BuiltInCategory, Category, CategoryType
-import System
-from System import Enum
-from System.Collections.Generic import Dictionary
 import unicodedata
+import pyrevit
+from pyrevit import forms, script
 import math
 import clr
 import os
@@ -27,93 +19,80 @@ from Autodesk.Revit.DB import *
 import csv
 clr.AddReference('RevitAPIUI')
 from Autodesk.Revit.UI.Selection import ObjectType
-import time
+import codecs
 clr.AddReference('RevitServices')
 import RevitServices
 from RevitServices.Persistence import DocumentManager
 from RevitServices.Transactions import TransactionManager
 from System.Collections.Generic import *
-
 #PER IL FLOATING POINT
 from decimal import Decimal, ROUND_DOWN, getcontext
 
 ##############################################################
-doc   = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument       
-app   = __revit__.Application     
+doc   = __revit__.ActiveUIDocument.Document  #type: Document
+uidoc = __revit__.ActiveUIDocument               
+app   = __revit__.Application      
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
-#t = Transaction(doc, "Verifica Nomenclatura Griglie e Livelli")
+t = Transaction(doc, "Verifica Fase")
+
 ##############################################################
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_StrutturaNomenclaturaLivelli.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir, '..','..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Livelli.csv'))
 
-#PREPARAZIONE OUTPUT
-output = pyrevit.output.get_output()
 
 # CREAZIONE LISTE DI OUTPUT DATA
-PHASE_NAMING_CSV_OUTPUT = []
-PHASE_NAMING_CSV_OUTPUT.append(["Nome Elemento","ID Elemento","Stato"])
-##############################################################
+VERIFICAFASE_CSV_OUTPUT = []
+VERIFICAFASE_CSV_OUTPUT.append(["Nome Elemento", "ID Elemento","Categoria","Fase", "Stato"])
 
-# COLLECTOR GRIGLIE E LIVELLI
-Collector_Fasi = FilteredElementCollector(doc).OfClass(Phase).ToElements()
-
+output = pyrevit.output.get_output()
 output.print_md("# Verifica Nomenclatura Fasi")
 output.print_md("---")
 
+#VERIFICO LA PRESENZA DELLA FASE ALL'INTERNO DEL FILE
 
-for Fase in Collector_Fasi:
-    Nome = Fase.Name
-    if len(Fase.Name.split("_")) != 5:
-        VERIFICA = "Nome incorretto"
-        SIMBOLO = ":cross_mark:"
-        VALUE = 0
-    else:
-        SuddivisioneNome = Nome.split("_")
-        VERIFICA = "Codice disciplina errato"
-        SIMBOLO = ":cross_mark:"
-        VALUE = 0
+FasiDelDocumento = FilteredElementCollector(doc).OfClass(Phase)
+FasiPresenti = [Fase.Name for Fase in FasiDelDocumento]
 
-
-"""
 # ACCEDO AL CSV DI CONTROLLO E CREO IL DIZIONARIO DI VERIFICA
 with codecs.open(parent_dir, 'r', 'utf-8-sig') as f:
     reader = csv.reader(f, delimiter=',')
-    for row in reader:
-        Chiave=row[0]
-        Codifica=row[1].split("~")
-        DizionarioDiVerifica[Chiave] = Codifica
+    rows = list(reader)  # Convert to a list of rows
+    if len(rows) >= 1:  # Ensure CSV has at least 2 rows
+        FasiDatabase = rows[1]
+    else:
+        output.print_md(":warning: CSV file does not have enough rows for verification!")
 
-VERIFICA = "NUMERO CAMPI ERRATO"
-SIMBOLO = ":cross_mark:"
+DataTable = []
 
+for FasePresente in FasiPresenti:
+    VERIFICA = "Fase non presente nel database."
+    SIMBOLO = ":cross_mark:"
+    VALUE = 0 
+    if FasePresente in FasiDatabase:
+        VERIFICA = "Fase presente nel database."
+        SIMBOLO = ":white_check_mark:"
+        VALUE = 1
+    VERIFICAFASE_CSV_OUTPUT.append([FasePresente,VERIFICA,VALUE])
+    DataTable.append([FasePresente,VERIFICA,SIMBOLO])
 
-# Append results to DataTable for both errors and successes
-DataTable.append([Livello.Category.Name, Nome, output.linkify((Livello.Id)), VERIFICA, SIMBOLO])
-GRID_LEVELS_NAMING_CSV_OUTPUT.append([Livello.Category.Name, Livello.Name, Livello.Id, VALUE])
-
-output.print_table(table_data = DataTable,title = "Verifica Nomenclatura Livelli", columns = ["Categoria","ID Elemento","Verifica"],formats = ["","",""])
+# CREAZIONE DELLA VISTA DI OUTPUT
+if len(DataTable) != 0:
+    output.freeze()
+    output.print_table(table_data = DataTable, columns = ["Fase","Verifica","Stato"], formats = ["","",""])
+    output.unfreeze()
 
 ###OPZIONI ESPORTAZIONE
-def VerificaTotale(lista):
-    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
-
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
-        if VerificaTotale(GRID_LEVELS_NAMING_CSV_OUTPUT):
-            GRID_LEVELS_NAMING_CSV_OUTPUT.append("Nome Verifica","Stato")
-            GRID_LEVELS_NAMING_CSV_OUTPUT.append("Naming Convention - Nomenclatura Griglie e Livelli.",1)
-        else:
-            gridsandlevels_csv_path = os.path.join(folder, "12_XX_CoordinationReport_Data.csv")
-            with codecs.open(gridsandlevels_csv_path, mode='w', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerows(GRID_LEVELS_NAMING_CSV_OUTPUT)
+        parameter_csv_path = os.path.join(folder, "12_FaseErrata_Data.csv")
+    with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerows(VERIFICAFASE_CSV_OUTPUT)
 
-"""
