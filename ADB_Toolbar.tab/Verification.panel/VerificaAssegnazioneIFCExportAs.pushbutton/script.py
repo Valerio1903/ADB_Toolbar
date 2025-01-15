@@ -2,6 +2,7 @@
 
 """ Verifica la valorizzazione del parametro ExportIFCAs  """
 
+__author__ = 'Roberto Dolfini'
 __title__ = 'Check Valorizzazione\nIFC Export As'
 
 ######################################
@@ -76,33 +77,7 @@ def EstraiInfoOggetto(oggetto):
                 return oggetto.get_Parameter(BuiltInParameter.SYMBOL_FAMILY_NAME_PARAM).AsValueString()
             except:
                 return "NON TROVATO"
-"""
-def VerificaCorrispondenza(Categoria, Current_IfcClass, Current_Predef, DizionarioDiVerifica):
 
-    result = ["<b style=color:red;'>IFC Class Errata :{}</b><br>".format(Current_IfcClass),"<b style=color:red;'>IFC Predef Errato :{}</b><br>".format(Current_Predef)]
-    
-
-    if Categoria in DizionarioDiVerifica:
-        print("-")
-        print(DizionarioDiVerifica[Categoria])
-        print(Current_IfcClass)
-        print(Current_Predef)
-        print("-")
-        for sublist in DizionarioDiVerifica[Categoria]:
-            print(sublist)
-            if Current_IfcClass in sublist:
-                result[0] = ":white_heavy_check_mark:"
-                print("Eccola{}".format(Current_IfcClass))
-
-            if Current_Predef in sublist:
-                result[1] = ":white_heavy_check_mark:" 
-                print("Eccola{}".format(Current_Predef))
-            if result[0] and result[1]:
-                break
-
-    return result
-
-"""
 def VerificaCorrispondenza(Categoria, Current_IfcClass, Current_Predef, DizionarioDiVerifica):
 
     result = [
@@ -345,6 +320,7 @@ Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
+        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
         if VerificaTotale(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT):
             IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT = []
             IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Nome Verifica","Stato"])
@@ -353,6 +329,7 @@ if Scelta == "Si":
             with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
+        """
         else:
             parameter_csv_path = os.path.join(folder, "11_XX_ValorizzazioneIFCSaveAs_Data.csv")
             with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
