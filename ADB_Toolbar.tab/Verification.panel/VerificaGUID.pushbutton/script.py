@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """ Verifica la presenza di parametri condivisi e, se trovati, verifica la corrispondenza dei GUID  """
-
+__author__ = 'Roberto Dolfini'
 __title__ = 'Verifica Parametri\nCondivisi'
+
 import codecs
 import re
 import unicodedata
@@ -126,6 +127,7 @@ if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
 		if VerificaTotale(PARAMETERS_CSV_DATA):
+			""" PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
 			PARAMETERS_CSV_DATA = []
 			PARAMETERS_CSV_DATA.append(["Nome Verifica","Stato"])
 			PARAMETERS_CSV_DATA.append(["Integrità e pulizia file - Parametri correttamente valorizzati.",1])
@@ -133,6 +135,7 @@ if Scelta == "Si":
 			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(PARAMETERS_CSV_DATA)
+			"""
 		else:
 			parameter_csv_path = os.path.join(folder, "10_01_SharedParameters_Data.csv")
 			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
