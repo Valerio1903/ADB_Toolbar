@@ -268,6 +268,7 @@ Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
+		"""
 		if VerificaTotale(OFFSET_CSV_DATA):
 			OFFSET_CSV_DATA = []
 			OFFSET_CSV_DATA.append(["Nome Verifica","Stato"])
@@ -277,6 +278,7 @@ if Scelta == "Si":
 			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(OFFSET_CSV_DATA)
+		"""
 		else:
 			parameter_csv_path = os.path.join(folder, "13_XX_ElementOffset_Data.csv")
 			# Use codecs to open the file with UTF-8 encoding
