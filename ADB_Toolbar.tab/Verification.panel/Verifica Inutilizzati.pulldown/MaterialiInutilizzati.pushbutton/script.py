@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 """ Verifica la presenza di materiali inutilizzati """
 
+__author__ = 'Roberto Dolfini'
 __title__ = 'Controllo Materiali\nInutilizzati'
 import codecs
 import re
@@ -53,16 +55,6 @@ for item in Check:
     # ARRICCHIMENTO FILE CSV
     UNUSED_MATERIALS_CSV_DATA.append([Current.Category.Name,item,Current.Name])
 
-"""
-# VISUALIZZAZIONE A SCHERMO DEFAULT 
-Counter = 0
-for category,elements in Categorie_Inutilizzate.items():
-    output.print_md("**Categoria: {0}**".format(category))
-    for element in elements:
-        print("Nome Materiale: {0}, Id Elemento: {1}".format(element["Nome_Materiale"],element["Id_Elemento"]))
-        Counter +=1 
-"""
-
 # GENERAZIONE TABELLA
 for category, elements in Categorie_Inutilizzate.items():
     table_data = []
@@ -93,11 +85,12 @@ ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
-    
-    if folder:
+    """
+    if folder: PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
         if VerificaTotale(UNUSED_MATERIALS_CSV_DATA):
             UNUSED_MATERIALS_CSV_DATA.append("Nome Verifica","Stato")
             UNUSED_MATERIALS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti materiali inutilizzati.",1)
+    """
         else:
             unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
             with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
