@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 """ Verifica la presenza di elementi inutilizzati """
-
+__author__ = 'Roberto Dolfini'
 __title__ = 'Controllo Elementi\nInutilizzati'
+
 import codecs
 import re
 import unicodedata
@@ -67,19 +69,6 @@ for item in Check:
         else:
             Categorie_Inutilizzate[Category].append({"Id_Elemento":item,"Nome_Famiglia":Current.Name,"Tipo":Current.get_Parameter(BuiltInParameter.SYMBOL_NAME_PARAM).AsValueString()})
             
-"""
-# VISUALIZZAZIONE A SCHERMO
-Counter = 0
-for category,elements in Categorie_Inutilizzate.items():
-    output.print_md("**Categoria: {0}**".format(category))
-    for element in elements:
-        if category != "Materiali":
-            print("Famiglia: {0}, Tipo: {1},Id Elemento: {2}".format(element["Nome_Famiglia"],element["Tipo"],element["Id_Elemento"]))
-            Counter +=1 
-        else:
-            print("Nome Materiale: {0}, Id Elemento: {1}".format(element["Nome_Famiglia"],element["Id_Elemento"]))
-            Counter +=1 
-"""
 
 # GENERAZIONE TABELLA
 for category, elements in Categorie_Inutilizzate.items():
@@ -123,9 +112,11 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
+        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
         if VerificaTotale(UNUSED_ELEMENTS_CSV_DATA):
             UNUSED_ELEMENTS_CSV_DATA.append("Nome Verifica","Stato")
             UNUSED_ELEMENTS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti elementi inutilizzati.",1)
+        """
         else:
             csv_path = os.path.join(folder, "UnusedElements_Data.csv")
             with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
