@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 """ Verifica che gli elementi strutturali non eccedano la lunghezza massima di 5 metri. """
 
+__author__ = 'Roberto Dolfini'
 __title__ = 'Verifica Lunghezza\nElementi Strutturali'
 
 import codecs
@@ -157,9 +159,11 @@ if Scelta == "Si":
 
 	if folder:
 		if VerificaTotale(STRUCTURAL_ERROR_CSV_OUTPUT):
+
 			STRUCTURAL_ERROR_CSV_OUTPUT.append("Nome Verifica","Stato")
 			STRUCTURAL_ERROR_CSV_OUTPUT.append("Regole di modellazione - Lunghezza elementi strutturali < 5m.",1)
 		parameter_csv_path = os.path.join(folder, "StructuralError_Data.csv")
+
 		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
 			writer = csv.writer(file)
 			writer.writerows(STRUCTURAL_ERROR_CSV_OUTPUT)
