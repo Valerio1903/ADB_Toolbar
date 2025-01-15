@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Verifica non siano presenti locali non delimitati nel progetto, ridondanti, non posizionati  """
-
+__author__ = 'Roberto Dolfini'
 __title__ = 'Verifica Status\nLocali'
 
 import codecs
@@ -145,6 +145,7 @@ if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 
 	if folder:
+		"""
 		if VerificaTotale(LOCAL_POSITION_CSV_OUTPUT):
 			LOCAL_POSITION_CSV_OUTPUT.append("Nome Verifica","Stato")
 			LOCAL_POSITION_CSV_OUTPUT.append("Integrità e pulizia file - Locali correttamente posizionati.",1)
@@ -156,6 +157,7 @@ if Scelta == "Si":
 		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
 			writer = csv.writer(file)
 			writer.writerows(LOCAL_POSITION_CSV_OUTPUT)
+   		"""
 		if Non_Bounding:
 			parameter_csv_path = os.path.join(folder, "VerificaRoomBounding_Data.csv")
 			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
