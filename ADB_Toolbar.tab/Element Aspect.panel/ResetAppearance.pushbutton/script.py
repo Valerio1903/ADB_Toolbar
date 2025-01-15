@@ -1,18 +1,15 @@
-""" Resetta ogni modifica all'aspetto degli elementi in vista.  """
+# -*- coding: utf-8 -*-
 
+""" Resetta ogni modifica all'aspetto degli elementi in vista.  """
+__author__ = 'Roberto Dolfini'
 __title__ = 'Resetta\nAspetto'
 
-import codecs
 import re
 import unicodedata
-#import pyrevit
-#from pyrevit import *
-import math
 import clr
 import System
 clr.AddReference('RevitAPI')
 from Autodesk.Revit.DB import *
-import csv
 clr.AddReference('RevitAPIUI')
 from Autodesk.Revit.UI.Selection import ObjectType
 
