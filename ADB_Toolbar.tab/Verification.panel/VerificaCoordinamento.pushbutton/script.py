@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ Verifica il corretto coordinamento all'interno del modello, verificando Coordinate Condivise e Copy Monitor  """
 
+__author__ = 'Roberto Dolfini'
 __title__ = 'Verifica\nCoordinamento'
 import codecs
 import re
@@ -237,6 +238,7 @@ if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
 		if VerificaTotale(COPYMONITOR_CSV_DATA):
+			""" PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
 			COPYMONITOR_CSV_DATA = []
 			COPYMONITOR_CSV_DATA.append(["Nome Verifica","Stato"])
 			COPYMONITOR_CSV_DATA.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
@@ -244,6 +246,7 @@ if Scelta == "Si":
 			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(COPYMONITOR_CSV_DATA)
+    			"""
 		else:
 			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
 			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
@@ -251,6 +254,7 @@ if Scelta == "Si":
 				writer.writerows(COPYMONITOR_CSV_DATA)
 
 		if 0 in COORDINATES_CSV_DATA[-1]:
+			
 			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
 			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
