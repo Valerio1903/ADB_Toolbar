@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ Verifica la corretta nomenclatura delle famiglie di sistema  """
+__author__ = 'Roberto Dolfini'
 __title__ = 'Check Nomenclatura Sistema'
 
 
@@ -81,8 +82,8 @@ t = Transaction(doc, "Verifica Nomenclatura Sistema")
 ##############################################################
 
 #COLLOCAZIONE CSV DI CONTROLLO
-script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_StrutturaNomenclaturaSistema.csv'))
+#script_dir = os.path.dirname(__file__)
+#parent_dir = os.path.abspath(os.path.join(script_dir,'..','..','..','000_Raccolta CSV di controllo','12_CSV_NomenclaturaSistema.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
@@ -92,6 +93,12 @@ MODEL_ELEMENTS_NAMING_CSV_OUTPUT = []
 MODEL_ELEMENTS_NAMING_CSV_OUTPUT.append(["Categoria","Nome Tipo","ID Elemento","Verifica","Stato"])
 ##############################################################
 
+output.print_md("# Verifica Nomenclatura Famiglie di Sistema")
+output.print_md("---")
+output.print_md("# SCRIPT IN ATTESA DI INPUT")
+
+
+"""
 def EstraiInfoOggetto(oggetto):
     # SE L'OGGETTO E' UNA FAMIGLIA CARICABILE MI PRENDE FAMIGLIA E TIPO
     if isinstance(oggetto,FamilyInstance):
@@ -199,3 +206,4 @@ for Elemento in Collector_IFC_Valorizzato:
             except Exception as e:
                 print(e)
                 pass
+"""
