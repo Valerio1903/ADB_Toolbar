@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-""" Verifica le unità di misura utilizzate nel progetto aperto  """
+""" Verifica le unita di misura utilizzate nel progetto aperto  """
 
 __author__ = 'Roberto Dolfini'
 __title__ = 'Verifica Unita Misura'
 
-import codecs
 import re
 import unicodedata
 import pyrevit
@@ -23,10 +22,8 @@ import codecs
 clr.AddReference('RevitServices')
 import RevitServices
 from RevitServices.Persistence import DocumentManager
-from RevitServices.Transactions import TransactionManager
 from System.Collections.Generic import *
-#PER IL FLOATING POINT
-from decimal import Decimal, ROUND_DOWN, getcontext
+
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document
@@ -35,7 +32,6 @@ app   = __revit__.Application
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
-t = Transaction(doc, "Verifica Fase")
 
 ##############################################################
 
@@ -46,7 +42,7 @@ t = Transaction(doc, "Verifica Fase")
 
 # CREAZIONE LISTE DI OUTPUT DATA
 VERIFICAUNITA_CSV_OUTPUT = []
-VERIFICAUNITA_CSV_OUTPUT.append(["Unità di misura","Formato corrente","Stato"])
+VERIFICAUNITA_CSV_OUTPUT.append(["Unita di misura","Formato corrente","Stato"])
 
 output = pyrevit.output.get_output()
 
@@ -65,18 +61,18 @@ for Valore in ValoriDaControllare:
 
 DataTable = []
 for Val,Tipo in zip(Format_Options,ValoriDaControllare):
-    Valore_Unità = Val.split(":")[1].split("-")[0]
+    Valore_Unita = Val.split(":")[1].split("-")[0]
     Valore_Tipo = Tipo.TypeId.ToString().split(":")[1].split("-")[0].upper()
-    if "meter" in Valore_Unità.lower():
-        DataTable.append([Valore_Tipo,Valore_Unità,":white_heavy_check_mark:"])
-        VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unità,1])
+    if "meter" in Valore_Unita.lower():
+        DataTable.append([Valore_Tipo,Valore_Unita,":white_heavy_check_mark:"])
+        VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unita,1])
     else:
-        DataTable.append([Valore_Tipo,Valore_Unità,":cross_mark:"])
-        VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unità,0])
+        DataTable.append([Valore_Tipo,Valore_Unita,":cross_mark:"])
+        VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unita,0])
 
-output.print_md("# Verifica Unità Di Progetto")
+output.print_md("# Verifica unita Di Progetto")
 output.print_md("---")
-output.print_table(table_data = DataTable,columns = ["Unità di misura","Formato corrente","Sistema Metrico"],formats = ["","",""])
+output.print_table(table_data = DataTable,columns = ["Unita di misura","Formato corrente","Sistema Metrico"],formats = ["","",""])
 
 
 ###OPZIONI ESPORTAZIONE
