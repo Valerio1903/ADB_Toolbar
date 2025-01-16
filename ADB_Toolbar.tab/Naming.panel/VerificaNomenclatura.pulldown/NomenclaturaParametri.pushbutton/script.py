@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ Verifica la corretta nomenclatura dei parametri  """
+__author__ = 'Roberto Dolfini'
 __title__ = 'Check Nomenclatura Parametri'
 
 ######################################
@@ -44,24 +45,22 @@ app   = __revit__.Application
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
-#t = Transaction(doc, "Verifica Nomenclatura Griglie e Livelli")
 ##############################################################
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_CodiciParametriProvvisorio.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir,'..','..','..','000_Raccolta CSV di controllo','12_CSV_CodiciParametriProvvisorio.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
 
 # CREAZIONE LISTE DI OUTPUT DATA
 PARAMETER_NAMING_CSV_OUTPUT = []
-PARAMETER_NAMING_CSV_OUTPUT.append(["Nome Parametro","ID Elemento","Verifica","Stato"])
+PARAMETER_NAMING_CSV_OUTPUT.append(["NomeTipo","ID Elemento","Nome Parametro","Verifica","Stato"])
 
 ##############################################################
 
-output.print_md("# Verifica Nomenclatura Parametri")
-output.print_md("---")
+
 
 
 # TUTTE ISTANZE
@@ -103,13 +102,13 @@ with codecs.open(parent_dir, 'r', 'utf-8-sig') as f:
         DizionarioDiVerifica["Pset"] = rows[0]
         DizionarioDiVerifica["ClasseParametro"] = rows[1]
     else:
-        output.print_md(":warning: CSV file does not have enough rows for verification!")
+        output.print_md("Errore, file CSV di controllo non conforme.")
 
 
 
 # ESTRAGGO I PARAMETRI DI TIPO ESCLUDENDO I BUILTIN
-CSV_DataTable = []
 
+DataTable = []
 for Tipo in TipiASchermo:
     if Tipo:
         Parametri_Tipo = Tipo.Parameters
@@ -158,10 +157,14 @@ for Tipo in TipiASchermo:
                         VALUE = 1
                     """
                 if VALUE != 1:
-                    CSV_DataTable.append([Nome_Tipo,ID_Tipo,NomeParametro, VERIFICA, VALUE])
+                    PARAMETER_NAMING_CSV_OUTPUT.append([Nome_Tipo,ID_Tipo,NomeParametro, VERIFICA, VALUE])
+                    DataTable.append([Nome_Tipo,ID_Tipo,NomeParametro, VERIFICA, SIMBOLO])
     
+output.print_md("# Verifica Nomenclatura Parametri")
+output.print_md("---")
 output.freeze()
-print(CSV_DataTable)
+output.print_table(
+    table_data=DataTable,columns = ["Tipo Elemento","ID Elemento","Nome Parametro","Verifica","Stato"],formats=["", "", "", ""])     
 output.unfreeze()
 
 
@@ -175,77 +178,14 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Definire esportazione fil
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
-        if VerificaTotale(CSV_DataTable):
+        if VerificaTotale(PARAMETER_NAMING_CSV_OUTPUT):
+            pass
+            """ IN ATTESA DI INFO 
             PARAMETER_NAMING_CSV_OUTPUT.append("Nome Verifica","Stato")
             PARAMETER_NAMING_CSV_OUTPUT.append("Naming Convention - Nomenclatura Parametri.",1)
+            """
         else:
-            csv_path = os.path.join(folder, "XX_XX_ParameterNaming_Data.csv")
+            csv_path = os.path.join(folder, "12_NomenclaturaParametri_Data.csv")
             with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
-                writer.writerows(CSV_DataTable)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-# ACCEDO AL CSV DI CONTROLLO E CREO IL DIZIONARIO DI VERIFICA
-with codecs.open(parent_dir, 'r', 'utf-8-sig') as f:
-    reader = csv.reader(f, delimiter=',')
-    for row in reader:
-        Chiave=row[0]
-        Codifica=row[1].split("~")
-        DizionarioDiVerifica[Chiave] = Codifica
-
-VERIFICA = "NUMERO CAMPI ERRATO"
-SIMBOLO = ":cross_mark:"
-
-
-# Append results to DataTable for both errors and successes
-DataTable.append([Livello.Category.Name, Nome, output.linkify((Livello.Id)), VERIFICA, SIMBOLO])
-GRID_LEVELS_NAMING_CSV_OUTPUT.append([Livello.Category.Name, Livello.Name, Livello.Id, VALUE])
-
-output.print_table(table_data = DataTable,title = "Verifica Nomenclatura Livelli", columns = ["Categoria","ID Elemento","Verifica"],formats = ["","",""])
-
-###OPZIONI ESPORTAZIONE
-def VerificaTotale(lista):
-    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
-
-ops = ["Si","No"]
-Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
-if Scelta == "Si":
-    folder = pyrevit.forms.pick_folder()
-    if folder:
-        if VerificaTotale(GRID_LEVELS_NAMING_CSV_OUTPUT):
-            GRID_LEVELS_NAMING_CSV_OUTPUT.append("Nome Verifica","Stato")
-            GRID_LEVELS_NAMING_CSV_OUTPUT.append("Naming Convention - Nomenclatura Griglie e Livelli.",1)
-        else:
-            gridsandlevels_csv_path = os.path.join(folder, "12_XX_CoordinationReport_Data.csv")
-            with codecs.open(gridsandlevels_csv_path, mode='w', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerows(GRID_LEVELS_NAMING_CSV_OUTPUT)
-
-"""
+                writer.writerows(PARAMETER_NAMING_CSV_OUTPUT)
