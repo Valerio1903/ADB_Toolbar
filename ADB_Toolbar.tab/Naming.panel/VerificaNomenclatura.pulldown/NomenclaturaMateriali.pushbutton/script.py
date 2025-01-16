@@ -50,7 +50,7 @@ t = Transaction(doc, "Verifica Nomenclatura Materiali")
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_CodiciMateriali.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir,'..', '..','..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Materiali.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
@@ -112,7 +112,7 @@ Stato = 0
 for Materiale in Collector_Materiali:
     # VERIFICA NUMERO CAMPI
     if len(Materiale.Name.split("_")) < 2:
-        VERIFICA = "NUMERO CAMPI ERRATO"
+        VERIFICA = "Numero campi errato"
         SIMBOLO = ":cross_mark:"
         DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
         MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato]) 
@@ -125,15 +125,15 @@ for Materiale in Collector_Materiali:
     
     # VERIFICA PRESENZA ADB A INIZIO NOME
     if "ADB" not in CodiceCliente:
-        VERIFICA = "CODICE ADB MANCANTE"
+        VERIFICA = "Codice 'ADB' non presente"
         SIMBOLO = ":cross_mark:"
-        DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA])
+        DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
         MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato])
         continue
 
     # Verifica Codice Materiale nel dizionario
     if CodiceMateriale not in DizionarioDiVerifica:
-        VERIFICA = "CODICE NON TROVATO NEL CSV"
+        VERIFICA = "Codice non trovato nel database"
         SIMBOLO = ":question_mark:"
         DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
         MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato])
@@ -147,7 +147,7 @@ for Materiale in Collector_Materiali:
     # VERIFICA CAMEL CASE
     codice_valido, msg = VerificaCodifica(CodiceMateriale, formato_atteso)
     if not codice_valido:
-        VERIFICA = "CODICE NON IN CAMEL CASE ({msg})".format(msg=msg)
+        VERIFICA = "Codice non in Camel Case ({msg})".format(msg=msg)
         SIMBOLO = ":cross_mark:"
         DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
         MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato])
@@ -159,10 +159,10 @@ for Materiale in Collector_Materiali:
         SIMBOLO = ":white_heavy_check_mark:"
         Stato = 1
     elif len(DescrizioneMateriale) > 25:
-        VERIFICA = "DESCRIZIONE TROPPO LUNGA"
+        VERIFICA = "Descrizione troppo lunga"
         SIMBOLO = ":cross_mark:"
     else:
-        VERIFICA = "DESCRIZIONE NON CORRISPONDENTE"
+        VERIFICA = "Descrizione non corrispondente"
         SIMBOLO = ":question_mark:"
 
     DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA,SIMBOLO])
@@ -188,10 +188,13 @@ if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
         if VerificaTotale(MATERIAL_NAMING_CSV_OUTPUT):
+            pass
+            """ IN ATTESA DI CONFERME 
             MATERIAL_NAMING_CSV_OUTPUT.append("Nome Verifica","Stato")
             MATERIAL_NAMING_CSV_OUTPUT.append("Naming Convention - Nomenclatura Materiali.",1)
+            """
         else:
-            csv_path = os.path.join(folder, "12_CSV_Nomenclatura_Materiali.csv")
+            csv_path = os.path.join(folder, "12_NomenclaturaMateriali_Data.csv")
             with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(MATERIAL_NAMING_CSV_OUTPUT)
