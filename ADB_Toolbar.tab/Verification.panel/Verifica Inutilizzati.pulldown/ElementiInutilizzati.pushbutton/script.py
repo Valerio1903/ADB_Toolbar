@@ -112,8 +112,9 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
-        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
+        
         if VerificaTotale(UNUSED_ELEMENTS_CSV_DATA):
+        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
             UNUSED_ELEMENTS_CSV_DATA.append("Nome Verifica","Stato")
             UNUSED_ELEMENTS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti elementi inutilizzati.",1)
         """
