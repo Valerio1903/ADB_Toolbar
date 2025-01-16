@@ -85,12 +85,14 @@ ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
-    """
-    if folder: PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
+    
+    if folder:
+    
         if VerificaTotale(UNUSED_MATERIALS_CSV_DATA):
+            """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
             UNUSED_MATERIALS_CSV_DATA.append("Nome Verifica","Stato")
             UNUSED_MATERIALS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti materiali inutilizzati.",1)
-    """
+            """
         else:
             unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
             with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
