@@ -114,10 +114,11 @@ if Scelta == "Si":
     if folder:
         
         if VerificaTotale(UNUSED_ELEMENTS_CSV_DATA):
-        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
-            UNUSED_ELEMENTS_CSV_DATA.append("Nome Verifica","Stato")
-            UNUSED_ELEMENTS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti elementi inutilizzati.",1)
-        """
+            pass
+            """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
+                UNUSED_ELEMENTS_CSV_DATA.append("Nome Verifica","Stato")
+                UNUSED_ELEMENTS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti elementi inutilizzati.",1)
+            """
         else:
             csv_path = os.path.join(folder, "UnusedElements_Data.csv")
             with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
