@@ -322,15 +322,16 @@ if Scelta == "Si":
     if folder:
         
         if VerificaTotale(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT):
-        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT = []
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-            IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Verifica Informativa - Assegnazione IFC Export As.",1])
-            parameter_csv_path = os.path.join(folder, "11_XX_ValorizzazioneIFCSaveAs_Data.csv")
-            with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
-        """
+            pass
+            """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
+                IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT = []
+                IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Nome Verifica","Stato"])
+                IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Verifica Informativa - Assegnazione IFC Export As.",1])
+                parameter_csv_path = os.path.join(folder, "11_XX_ValorizzazioneIFCSaveAs_Data.csv")
+                with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+                    writer = csv.writer(file)
+                    writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
+            """
         else:
             parameter_csv_path = os.path.join(folder, "11_XX_ValorizzazioneIFCSaveAs_Data.csv")
             with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
