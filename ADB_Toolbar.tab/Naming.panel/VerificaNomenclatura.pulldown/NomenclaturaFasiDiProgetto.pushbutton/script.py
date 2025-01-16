@@ -46,7 +46,7 @@ parent_dir = os.path.abspath(os.path.join(script_dir, '..','..','000_Raccolta CS
 
 # CREAZIONE LISTE DI OUTPUT DATA
 VERIFICAFASE_CSV_OUTPUT = []
-VERIFICAFASE_CSV_OUTPUT.append(["Nome Elemento", "ID Elemento","Categoria","Fase", "Stato"])
+VERIFICAFASE_CSV_OUTPUT.append(["Nome Fase", "Verifica", "Stato"])
 
 output = pyrevit.output.get_output()
 output.print_md("# Verifica Nomenclatura Fasi")
