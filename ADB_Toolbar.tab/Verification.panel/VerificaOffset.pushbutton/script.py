@@ -268,8 +268,9 @@ Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
-		"""
+		
 		if VerificaTotale(OFFSET_CSV_DATA):
+		""" PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
 			OFFSET_CSV_DATA = []
 			OFFSET_CSV_DATA.append(["Nome Verifica","Stato"])
 			OFFSET_CSV_DATA.append(["Regole di modellazione - Elementi posizionati correttamente.",1])
