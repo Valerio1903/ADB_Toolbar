@@ -50,7 +50,7 @@ output = pyrevit.output.get_output()
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Livelli.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir,'..', '..','..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Livelli.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
@@ -170,6 +170,8 @@ if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
         if VerificaTotale(GRID_LEVELS_NAMING_CSV_OUTPUT):
+            pass
+            """ IN ATTESA DI CONFERME 
             GRID_LEVELS_NAMING_CSV_OUTPUT = []
             GRID_LEVELS_NAMING_CSV_OUTPUT.append(["Nome Verifica","Stato"])
             GRID_LEVELS_NAMING_CSV_OUTPUT.append(["Naming Convention - Nomenclatura Griglie e Livelli.",1])
@@ -177,6 +179,7 @@ if Scelta == "Si":
             with codecs.open(gridsandlevels_csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(GRID_LEVELS_NAMING_CSV_OUTPUT)
+            """
         else:
             gridsandlevels_csv_path = os.path.join(folder, "12_GriglieELivelli_Data.csv")
             with codecs.open(gridsandlevels_csv_path, mode='w', encoding='utf-8') as file:
