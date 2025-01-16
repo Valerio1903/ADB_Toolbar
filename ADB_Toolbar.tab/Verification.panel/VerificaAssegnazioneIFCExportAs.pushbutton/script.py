@@ -320,8 +320,9 @@ Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
-        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
+        
         if VerificaTotale(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT):
+        """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
             IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT = []
             IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Nome Verifica","Stato"])
             IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Verifica Informativa - Assegnazione IFC Export As.",1])
