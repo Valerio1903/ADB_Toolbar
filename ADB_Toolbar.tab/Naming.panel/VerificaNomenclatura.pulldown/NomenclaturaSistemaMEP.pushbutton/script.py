@@ -54,7 +54,7 @@ t = Transaction(doc, "Verifica Nomenclatura Sistemi MEP")
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Sistemi MEP.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir,'..','..','..','000_Raccolta CSV di controllo','12_CSV_NomenclaturaSistemiMEP.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output() 
@@ -233,7 +233,10 @@ for Coppia in Coppia_NomenclaturaCorretta:
 output.print_md("# Verifica Nomenclatura Sistemi MEP")
 output.print_md("---")
 output.freeze()
-output.print_table(table_data = DataTable, columns = ["Categoria","Nome Sistema","ID Elemento","Verifica","Stato"], formats = ["","","","",""])
+if DataTable:
+    output.print_table(table_data = DataTable, columns = ["Categoria","Nome Sistema","ID Elemento","Verifica","Stato"], formats = ["","","","",""])
+else:
+    output.print_md("Nessun elemento da verificare.")
 output.unfreeze()
 
 
@@ -247,8 +250,10 @@ if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
         if VerificaTotale(MEP_SYSTEM_NAMING_CSV_OUTPUT):
+            """ IN ATTESA DI INFO
             MEP_SYSTEM_NAMING_CSV_OUTPUT.append("Nome Verifica","Stato")
             MEP_SYSTEM_NAMING_CSV_OUTPUT.append("Naming Convention - Nomenclatura Materiali.",1)
+            """
         else:
             csv_path = os.path.join(folder, "12_Nomenclatura_SistemiMEP.csv")
             with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
