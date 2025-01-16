@@ -66,7 +66,11 @@ for element in CollectorProgetto:
 		
 output.print_md("# Verifica Famiglie In-Place")
 output.print_md("---")
-output.print_table(table_data = DataTable,columns = ["Categoria","Famiglia","Id Elemento"],formats = ["","",""])
+if DataTable:
+	output.print_table(table_data = DataTable,columns = ["Categoria","Famiglia","Id Elemento"],formats = ["","",""])
+else:
+	output.print_md(":white_heavy_check_mark: **Nessuna famiglia in-place presente nel progetto** :white_heavy_check_mark: ")
+
 
 
 ###OPZIONI ESPORTAZIONE
