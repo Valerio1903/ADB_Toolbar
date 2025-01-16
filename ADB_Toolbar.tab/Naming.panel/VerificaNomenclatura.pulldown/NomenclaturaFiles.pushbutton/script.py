@@ -155,7 +155,7 @@ if Cartella_Controllo:
                 #DataTable.append([NomeFile,format_size(DimensioneFile),":cross_mark:"])
             # CONTROLLO NOME DEL FILE
             DataTable.append([NomeFile,format_size(DimensioneFile),VERIFICA_DIMENSIONE,VERIFICA,SIMBOLO])
-
+            FILEDIMENSION_CSV_OUTPUT.append([NomeFile,VERIFICA,format_size(DimensioneFile),VALUE])
 ### ASSEGNARE LA NOMENCLATURA CORRETTA DEI FILESx\\
 
 
@@ -164,3 +164,16 @@ output.print_md("# Verifica Dimensione Files")
 output.print_md("---")
 
 output.print_table(table_data = DataTable,columns = ["Nome File","Dimensione File","< 200 MB","Verifica Nomenclatura","Esito Verifica"],formats = ["","","","",""])
+
+
+###OPZIONI ESPORTAZIONE
+ops = ["Si","No"]
+Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
+if Scelta == "Si":
+    folder = pyrevit.forms.pick_folder()
+    if folder:
+        parameter_csv_path = os.path.join(folder, "12_DimensioneNomenclaturaFile_Data.csv")
+    with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerows(FILEDIMENSION_CSV_OUTPUT)
+        
