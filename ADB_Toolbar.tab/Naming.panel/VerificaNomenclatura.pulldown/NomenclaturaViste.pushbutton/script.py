@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """ Verifica la corretta nomenclatura delle viste presenti  """
+__author__ = 'Roberto Dolfini'
 __title__ = 'Check Nomenclatura Viste'
 
 ######################################
@@ -49,7 +50,7 @@ output = pyrevit.output.get_output()
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_StrutturaNomenclaturaSistema.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir,'..','..','..','000_Raccolta CSV di controllo','12_CSV_NomenclaturaViste.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
@@ -58,6 +59,11 @@ output = pyrevit.output.get_output()
 VIEWS_NAMING_CSV_OUTPUT = []
 VIEWS_NAMING_CSV_OUTPUT.append(["Tipo Vista","Nome Vista","ID Elemento","Stato"])
 ##############################################################
+
+output.print_md("# Verifica Nomenclatura Viste")
+output.print_md("---")
+output.print_md("# SCRIPT IN ATTESA DI INPUT")
+
 
 def VerificaCodifica(nome, riferimento):
     mappa_regex = {'X': '[A-Z]', 'x': '[a-z]', 'n': '\\d', 'A': 'A'}
@@ -103,6 +109,7 @@ for ListaCategorieIfc,CodiceDisciplina,Codifica,CodificaCampi in zip(CategorieIF
         else:
             DizionarioDiVerifica[Categoria].append([CodiceDisciplina,Codifica,CodificaCampi])
 """
+"""
 # COLLECTOR VISTE DI PROGETTO
 All_Collector_VisteDiProgetto = FilteredElementCollector(doc).OfClass(View).ToElements()
 Collector_VisteDiProgetto = []
@@ -128,7 +135,7 @@ for Vista in Collector_VisteDiProgetto:
         VIEWS_NAMING_CSV_OUTPUT.append([Vista.ViewType,Vista.Name,Vista.Id,0])
 
 output.print_table(table_data = DataTable,title = "Verifica Nomenclatura Viste", columns = ["Tipo Vista","Nome Vista","ID Elemento","Stato"],formats = ["","","",""])
-
+"""
 
 
 """
