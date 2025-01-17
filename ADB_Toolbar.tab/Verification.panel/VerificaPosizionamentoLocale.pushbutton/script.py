@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Verifica non siano presenti locali non delimitati nel progetto, ridondanti, non posizionati  """
+
 __author__ = 'Roberto Dolfini'
 __title__ = 'Verifica Status\nLocali'
 
@@ -65,21 +66,23 @@ for Warning in doc.GetWarnings():
 		ElementoErrorID = Warning.GetFailingElements()[0]
 		ElementoError = doc.GetElement(ElementoErrorID)
 		room_id = output.linkify(ElementoErrorID)
+
 		room_name = ElementoError.get_Parameter(BuiltInParameter.ROOM_NAME).AsValueString()
 		failure_message = "Locale non racchiuso"
 		
 		LocaliNonRacchiusi.append([room_name,room_id,failure_message])
-		LOCAL_POSITION_CSV_OUTPUT.append([room_name,room_id,failure_message,0])
+		LOCAL_POSITION_CSV_OUTPUT.append([room_name,ElementoErrorID,failure_message,0])
 
 	elif Warning.GetFailureDefinitionId().Guid == NotSingleRoom:
 		ElementoErrorID = Warning.GetFailingElements()[1]
 		ElementoError = doc.GetElement(ElementoErrorID)
 		room_id = output.linkify(ElementoErrorID)
+		
 		room_name = ElementoError.get_Parameter(BuiltInParameter.ROOM_NAME).AsValueString()
 		failure_message = "Locale ridondante"
 
 		LocaliRidondanti.append([room_name,room_id,failure_message])
-		LOCAL_POSITION_CSV_OUTPUT.append([room_name,room_id,failure_message,0])
+		LOCAL_POSITION_CSV_OUTPUT.append([room_name,ElementoErrorID,failure_message,0])
 
 for Locale in LocaliProgetto:
 	room_name = Locale.get_Parameter(BuiltInParameter.ROOM_NAME).AsValueString()
@@ -87,7 +90,7 @@ for Locale in LocaliProgetto:
 	failure_message = "Locale non posizionato"
 	if not Locale.Location:
 		LocaliNonPosizionati.append([room_name,room_id,failure_message])
-		LOCAL_POSITION_CSV_OUTPUT.append([room_name,room_id,failure_message,0])
+		LOCAL_POSITION_CSV_OUTPUT.append([room_name,Locale.Id,failure_message,0])
 
 output.print_md("# Verifica Status Locali")
 output.print_md("---")
@@ -125,7 +128,7 @@ NON_BOUNDING_DATA.append(["Nome Elemento","ID Elemento","Verifica","Stato"]) #DE
 for Elemento in ElementsInView:
 	if Elemento.get_Parameter(BuiltInParameter.WALL_ATTR_ROOM_BOUNDING).AsInteger() == 0:
 		Non_Bounding.append([EstraiFamigliaOggetto(Elemento),output.linkify(Elemento.Id),"Room Bounding Spuntato"])
-		NON_BOUNDING_DATA.append([EstraiFamigliaOggetto(Elemento),output.linkify(Elemento.Id),"Room Bounding Spuntato",0])
+		NON_BOUNDING_DATA.append([EstraiFamigliaOggetto(Elemento),Elemento.Id,"Room Bounding Spuntato",0])
 
 if Non_Bounding:
 	output.print_md("# Verifica Room Bounding Elementi")
@@ -145,6 +148,16 @@ if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 
 	if folder:
+		parameter_csv_path = os.path.join(folder, "13_VerificaLocali_Data.csv")
+		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(LOCAL_POSITION_CSV_OUTPUT)
+   		
+		if Non_Bounding:
+			parameter_csv_path = os.path.join(folder, "13_VerificaRoomBounding_Data.csv")
+			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+				writer = csv.writer(file)
+				writer.writerows(NON_BOUNDING_DATA)	
 		"""
 		if VerificaTotale(LOCAL_POSITION_CSV_OUTPUT):
 			LOCAL_POSITION_CSV_OUTPUT.append("Nome Verifica","Stato")
@@ -152,14 +165,5 @@ if Scelta == "Si":
 		if VerificaTotale(NON_BOUNDING_DATA):
 			NON_BOUNDING_DATA.append("Nome Verifica","Stato")
 			NON_BOUNDING_DATA.append("Integrità e pulizia file - Locali correttamente racchiusi.",1)
-	
-		parameter_csv_path = os.path.join(folder, "VerificaLocali_Data.csv")
-		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-			writer = csv.writer(file)
-			writer.writerows(LOCAL_POSITION_CSV_OUTPUT)
-   		"""
-		if Non_Bounding:
-			parameter_csv_path = os.path.join(folder, "VerificaRoomBounding_Data.csv")
-			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(NON_BOUNDING_DATA)
+		"""
+
