@@ -41,10 +41,9 @@ categories_to_check.Add(ElementId(BuiltInCategory.OST_Materials))
 Categorie_Inutilizzate = {}
 Counter = 0
 UNUSED_MATERIALS_CSV_DATA = []
-UNUSED_MATERIALS_CSV_DATA = [["Categoria","ID Elemento","Nome"]]
+UNUSED_MATERIALS_CSV_DATA = [["Categoria","ID Elemento","Nome","Stato"]]
 Check = doc.GetUnusedElements(categories_to_check)
 for item in Check:
-    
     Current = doc.GetElement(item)
     Category = Current.Category.Name
     if Category not in Categorie_Inutilizzate:
@@ -53,7 +52,7 @@ for item in Check:
     Counter +=1
 
     # ARRICCHIMENTO FILE CSV
-    UNUSED_MATERIALS_CSV_DATA.append([Current.Category.Name,item,Current.Name])
+    UNUSED_MATERIALS_CSV_DATA.append([Current.Category.Name,item,Current.Name,0])
 
 # GENERAZIONE TABELLA
 for category, elements in Categorie_Inutilizzate.items():
@@ -63,10 +62,14 @@ for category, elements in Categorie_Inutilizzate.items():
         table_data.append(row)
     try:
         output.print_table(table_data=table_data, columns=["Nome Materiale", "ID Elemento"])
+    except:
+        pass
+    """
     except Exception as e:
         print("Errore rilevato: ".format(e))
-
+    """
 # CONTEGGIO ELEMENTI
+"""
 Counter = 0
 for category, elements in Categorie_Inutilizzate.items():
     Counter = Counter + len(elements)
@@ -76,7 +79,7 @@ if Counter != 0:
 else:
     output.print_md(":white_heavy_check_mark: **NON SONO PRESENTI ELEMENTI NON UTILIZZATI**")
 output.print_md("---")
-
+"""
 ###OPZIONI ESPORTAZIONE
 def VerificaTotale(lista):
     return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
@@ -87,14 +90,16 @@ if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     
     if folder:
-    
+        unusedmaterials_csv_path = os.path.join(folder, "10_MaterialiInutilizzati_Data.csv")
+        with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerows(UNUSED_MATERIALS_CSV_DATA)
         if VerificaTotale(UNUSED_MATERIALS_CSV_DATA):
             """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
             UNUSED_MATERIALS_CSV_DATA.append("Nome Verifica","Stato")
             UNUSED_MATERIALS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti materiali inutilizzati.",1)
             """
         else:
-            unusedmaterials_csv_path = os.path.join(folder, "UnusedMaterials_Data.csv")
-            with codecs.open(unusedmaterials_csv_path, mode='w', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerows(UNUSED_MATERIALS_CSV_DATA)
+            pass
+
+
