@@ -85,32 +85,38 @@ if Cartella_Controllo:
 
 output.print_md("# Verifica Versione Files")
 output.print_md("---")
-output.freeze()
-output.print_table(table_data = DataTable,columns = ["Nome File","Versione File","Verifica","Stato"],formats = ["","","",""])
-output.unfreeze()
+if len(DataTable) > 0:
+    output.freeze()
+    output.print_table(table_data = DataTable,columns = ["Nome File","Versione File","Verifica","Stato"],formats = ["","","",""])
+    output.unfreeze()
+else:
+    output.print_md("**Nessun file IFC o RVT trovato nella cartella selezionata.**")
+    script.exit()
 
 ###OPZIONI ESPORTAZIONE
 def VerificaTotale(lista):
-	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
 
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 
 if Scelta == "Si":
-	folder = pyrevit.forms.pick_folder()
-	if folder:
-		if VerificaTotale(VERIFICAVERSIONE_CSV_OUTPUT):
-			"""
-			VERIFICAUNITA_CSV_OUTPUT = []
-			VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-			VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
-			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+    folder = pyrevit.forms.pick_folder()
+    if folder:
+        copymonitor_csv_path = os.path.join(folder, "10_VersioneFile_Data.csv")
+        with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerows(VERIFICAVERSIONE_CSV_OUTPUT)
+        if VerificaTotale(VERIFICAVERSIONE_CSV_OUTPUT):
+            pass
             """
-		else:
-			copymonitor_csv_path = os.path.join(folder, "10_VersioneFile_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VERIFICAVERSIONE_CSV_OUTPUT)
+            VERIFICAUNITA_CSV_OUTPUT = []
+            VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
+            VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
+            copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
+            with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+            """
+        else:
+            pass
