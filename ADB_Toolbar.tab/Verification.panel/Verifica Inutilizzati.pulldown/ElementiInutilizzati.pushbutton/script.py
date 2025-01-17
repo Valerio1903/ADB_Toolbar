@@ -54,10 +54,10 @@ for item in Check:
                 
             except:
                 Categorie_Inutilizzate[Category].append({"Id_Elemento":item,"Nome_Famiglia":Current.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME).AsValueString(),"Tipo":Current.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsValueString()})
-                
+        """        
         else:
             Categorie_Inutilizzate[Category].append({"Id_Elemento":item,"Nome_Famiglia":Current.Name,"Tipo":""})
-            
+        """  
     except:
         Category = "Altri Stili"
         if Category not in Categorie_Inutilizzate:
@@ -79,19 +79,23 @@ for category, elements in Categorie_Inutilizzate.items():
     try:
         output.print_table(table_data=table_data, title=category, columns=["Nome Famiglia / Nome Elemento", "ID Elemento", "Tipo"])
     except Exception as e:
-        print("Errore rilevato: ".format(e))
+        pass
+        #print("Errore rilevato: ".format(e))
 
 # CONTEGGIO ELEMENTI
+"""
 Counter = 0
 for category, elements in Categorie_Inutilizzate.items():
     Counter = Counter + len(elements)
 output.print_md("---")
+
 if Counter != 0:
     output.print_md("_Conteggio elementi inutilizzati {0}_".format(Counter))
+  
 else:
     output.print_md(":white_heavy_check_mark: **NON SONO PRESENTI ELEMENTI NON UTILIZZATI**")
 output.print_md("---")
-
+"""  
 
 
 ###OPZIONI ESPORTAZIONE
@@ -100,11 +104,11 @@ def VerificaTotale(lista):
 
 # GENERAZIONE TABELLA
 UNUSED_ELEMENTS_CSV_DATA = []
-UNUSED_ELEMENTS_CSV_DATA = [["Categoria","ID Elemento","Nome","Tipo"]]
+UNUSED_ELEMENTS_CSV_DATA = [["Categoria","ID Elemento","Nome","Tipo","Stato"]]
 
 for category, elements in Categorie_Inutilizzate.items():
     for element in elements:
-        row = [category, element["Id_Elemento"],element["Nome_Famiglia"], element["Tipo"]]
+        row = [category, element["Id_Elemento"],element["Nome_Famiglia"], element["Tipo"],0]
         UNUSED_ELEMENTS_CSV_DATA.append(row)
 
 ops = ["Si","No"]
@@ -112,18 +116,18 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
     folder = pyrevit.forms.pick_folder()
     if folder:
-        
-        if VerificaTotale(UNUSED_ELEMENTS_CSV_DATA):
-            pass
+        csv_path = os.path.join(folder, "10_ElementiInutilizzati_Data.csv")
+        with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerows(UNUSED_ELEMENTS_CSV_DATA)
+        #if VerificaTotale(UNUSED_ELEMENTS_CSV_DATA):
+            #pass
             """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
                 UNUSED_ELEMENTS_CSV_DATA.append("Nome Verifica","Stato")
                 UNUSED_ELEMENTS_CSV_DATA.append("Integrità e pulizia file - Non sono presenti elementi inutilizzati.",1)
             """
-        else:
-            csv_path = os.path.join(folder, "UnusedElements_Data.csv")
-            with codecs.open(csv_path, mode='w', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerows(UNUSED_ELEMENTS_CSV_DATA)
+        #else:
+        
 
 
 
