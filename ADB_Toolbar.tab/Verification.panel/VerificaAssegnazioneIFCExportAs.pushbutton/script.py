@@ -51,7 +51,7 @@ t = Transaction(doc, "Colorazione IFCSaveAs")
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-csv_dir = os.path.join(script_dir, 'IfcClass_PredfType.csv')
+csv_dir = os.path.abspath(os.path.join(script_dir,'..','..','000_Raccolta CSV di controllo', '11_CSV_IFCExportAs.csv'))
 
 
 #parent_dir = os.path.abspath(os.path.join(script_dir, '..','Raccolta CSV di controllo','Database_StrutturaNomenclaturaCaricabile.csv'))
@@ -333,7 +333,7 @@ if Scelta == "Si":
                     writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
             """
         else:
-            parameter_csv_path = os.path.join(folder, "11_XX_ValorizzazioneIFCSaveAs_Data.csv")
+            parameter_csv_path = os.path.join(folder, "11_ValorizzazioneIFCSaveAs_Data.csv")
             with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
