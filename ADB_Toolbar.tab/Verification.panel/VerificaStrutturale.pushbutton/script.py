@@ -45,37 +45,37 @@ STRUCTURAL_ERROR_CSV_OUTPUT = []
 STRUCTURAL_ERROR_CSV_OUTPUT.append(["Famiglia e Tipo","ID Elemento","Categoria","Verifica","Stato"])
 
 structural_categories = [
-"OST_StructuralTrussStickSymbols",
-"OST_StructuralTrussHiddenLines",
-"OST_StructuralFramingSystemHiddenLines_Obsolete",
-"OST_StructuralTendonTags",
-"OST_StructuralTendonHiddenLines",
-"OST_StructuralTendons",
-"OST_StructuralBracePlanReps",
-"OST_StructuralAnnotations",
-"OST_StructuralConnectionHandlerTags_Deprecated",
-"OST_StructuralFoundationTags",
-"OST_StructuralColumnTags",
-"OST_StructuralFramingTags",
-"OST_StructuralStiffenerHiddenLines",
-"OST_StructuralColumnLocationLine",
-"OST_StructuralFramingLocationLine",
-"OST_StructuralStiffenerTags",
-"OST_StructuralStiffener",
-"OST_StructuralTruss",
-"OST_StructuralColumnStickSymbols",
-"OST_HiddenStructuralColumnLines",
-"OST_StructuralColumns",
-"OST_HiddenStructuralFramingLines",
-"OST_StructuralFramingSystem",
-"OST_StructuralFramingOther",
-"OST_StructuralFraming",
-"OST_HiddenStructuralFoundationLines",
-"OST_StructuralFoundation",
-"OST_StructuralFramingOpening",
-"OST_HiddenStructuralConnectionLines_Deprecated",
-"OST_StructuralConnectionHandler_Deprecated"
-]
+	"OST_StructuralTrussStickSymbols",
+	"OST_StructuralTrussHiddenLines",
+	"OST_StructuralFramingSystemHiddenLines_Obsolete",
+	"OST_StructuralTendonTags",
+	"OST_StructuralTendonHiddenLines",
+	"OST_StructuralTendons",
+	"OST_StructuralBracePlanReps",
+	"OST_StructuralAnnotations",
+	"OST_StructuralConnectionHandlerTags_Deprecated",
+	"OST_StructuralFoundationTags",
+	"OST_StructuralColumnTags",
+	"OST_StructuralFramingTags",
+	"OST_StructuralStiffenerHiddenLines",
+	"OST_StructuralColumnLocationLine",
+	"OST_StructuralFramingLocationLine",
+	"OST_StructuralStiffenerTags",
+	"OST_StructuralStiffener",
+	"OST_StructuralTruss",
+	"OST_StructuralColumnStickSymbols",
+	"OST_HiddenStructuralColumnLines",
+	"OST_StructuralColumns",
+	"OST_HiddenStructuralFramingLines",
+	"OST_StructuralFramingSystem",
+	"OST_StructuralFramingOther",
+	"OST_StructuralFraming",
+	"OST_HiddenStructuralFoundationLines",
+	"OST_StructuralFoundation",
+	"OST_StructuralFramingOpening",
+	"OST_HiddenStructuralConnectionLines_Deprecated",
+	"OST_StructuralConnectionHandler_Deprecated"
+	]
 
 # CONVERTO STRINGHE IN ATTRIBUTI DI BUILTINCATEGORY
 str_built_in_category_enums = [getattr(BuiltInCategory, category) for category in structural_categories]
@@ -158,12 +158,15 @@ if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 
 	if folder:
+		parameter_csv_path = os.path.join(folder, "13_LunghezzaStrutture_Data.csv")
+		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(STRUCTURAL_ERROR_CSV_OUTPUT)
+		""" IN ATTESA DI INFO
 		if VerificaTotale(STRUCTURAL_ERROR_CSV_OUTPUT):
 
 			STRUCTURAL_ERROR_CSV_OUTPUT.append("Nome Verifica","Stato")
 			STRUCTURAL_ERROR_CSV_OUTPUT.append("Regole di modellazione - Lunghezza elementi strutturali < 5m.",1)
-		parameter_csv_path = os.path.join(folder, "StructuralError_Data.csv")
+		
+		"""
 
-		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-			writer = csv.writer(file)
-			writer.writerows(STRUCTURAL_ERROR_CSV_OUTPUT)
