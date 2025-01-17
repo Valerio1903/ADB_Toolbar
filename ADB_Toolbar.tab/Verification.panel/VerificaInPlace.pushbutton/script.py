@@ -83,7 +83,9 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
+		
 		if VerificaTotale(FAMIGLIEINPLACE_CSV_OUTPUT):
+			pass
 			"""
 			VERIFICAUNITA_CSV_OUTPUT = []
 			VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
