@@ -32,7 +32,6 @@ app   = __revit__.Application
 
 # CREAZIONE LISTE DI OUTPUT DATA
 PARAMETERS_CSV_DATA = []
-PARAMETERS_CSV_DATA.append(["Nome Verifica","Stato"])
 
 # CREAZIONE DELLA VISTA DI OUTPUT
 output = pyrevit.output.get_output()
@@ -83,7 +82,7 @@ if ParametersFromRVT:
 	output.print_md("---")
 
 	OutputResult = []
-	PARAMETERS_CSV_DATA.append(["Nome Parametro","GUID Parametro","Status"])
+	PARAMETERS_CSV_DATA.append(["Nome Parametro","GUID Parametro","Stato"])
 	for ProjectParameter in ParametersFromRVT:
 		FOUND = False
 		for SharedList in ParametersFromFileClean:
@@ -126,7 +125,12 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
+		parameter_csv_path = os.path.join(folder, "10_SharedParameters_Data.csv")
+		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(PARAMETERS_CSV_DATA)
 		if VerificaTotale(PARAMETERS_CSV_DATA):
+			pass
 			""" PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
 			PARAMETERS_CSV_DATA = []
 			PARAMETERS_CSV_DATA.append(["Nome Verifica","Stato"])
@@ -137,7 +141,4 @@ if Scelta == "Si":
 				writer.writerows(PARAMETERS_CSV_DATA)
 			"""
 		else:
-			parameter_csv_path = os.path.join(folder, "10_01_SharedParameters_Data.csv")
-			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(PARAMETERS_CSV_DATA)
+			pass
