@@ -85,6 +85,10 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
+		copymonitor_csv_path = os.path.join(folder, "15_UnitaProgetto_Data.csv")
+		with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
 		if VerificaTotale(VERIFICAUNITA_CSV_OUTPUT):
 			"""
 			VERIFICAUNITA_CSV_OUTPUT = []
@@ -94,9 +98,7 @@ if Scelta == "Si":
 			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
-            """
+           		"""
 		else:
-			copymonitor_csv_path = os.path.join(folder, "15_UnitaProgetto_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+			pass
+
