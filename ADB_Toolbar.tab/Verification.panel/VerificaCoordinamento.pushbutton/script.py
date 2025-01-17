@@ -248,7 +248,7 @@ if Scelta == "Si":
 				writer.writerows(COPYMONITOR_CSV_DATA)
     			"""
 		else:
-			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
+			copymonitor_csv_path = os.path.join(folder, "07_CopyMonitorReport_Data.csv")
 			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(COPYMONITOR_CSV_DATA)
@@ -261,10 +261,12 @@ if Scelta == "Si":
 				writer.writerows(COORDINATES_CSV_DATA) 
 			
 		else:
+			""" IN ATTESA DI INFO
 			COORDINATES_CSV_DATA = []
 			COORDINATES_CSV_DATA.append(["Nome Verifica","Stato"])
 			COORDINATES_CSV_DATA.append(["Georeferenziazione e Orientamento - Coordinate e Nord di progetto correttamente valorizzato.",1])
-			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
+			coordination_csv_path = os.path.join(folder, "07_CoordinationReport_Data.csv")
 			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(COORDINATES_CSV_DATA)
+			"""
