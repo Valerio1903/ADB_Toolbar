@@ -268,7 +268,11 @@ Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
-		
+		parameter_csv_path = os.path.join(folder, "13_ElementOffset_Data.csv")
+		# Use codecs to open the file with UTF-8 encoding
+		with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(OFFSET_CSV_DATA)
 		if VerificaTotale(OFFSET_CSV_DATA):
 			pass
 			""" PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
@@ -282,11 +286,8 @@ if Scelta == "Si":
 					writer.writerows(OFFSET_CSV_DATA)
 			"""
 		else:
-			parameter_csv_path = os.path.join(folder, "13_XX_ElementOffset_Data.csv")
-			# Use codecs to open the file with UTF-8 encoding
-			with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(OFFSET_CSV_DATA)
+			pass
+			
 
 
 
