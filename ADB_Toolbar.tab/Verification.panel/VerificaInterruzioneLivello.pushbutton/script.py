@@ -30,8 +30,8 @@ from decimal import Decimal, ROUND_DOWN, getcontext
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument               
-app   = __revit__.Application      
+uidoc = __revit__.ActiveUIDocument         
+app   = __revit__.Application     
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
@@ -77,7 +77,7 @@ for Elemento in ElementiVerifica:
         Base = Elemento.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM).AsElementId()
         Superiore = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM).AsElementId()
         NomeBase = Elemento.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM).AsValueString()
-        NomeSuperiore = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM).AsValueString()       
+        NomeSuperiore = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM).AsValueString()    
 
     if Superiore != ElementId(-1):
         if IDLivelli[IDLivelli.index(Base)+1] != Superiore:
@@ -89,6 +89,7 @@ for Elemento in ElementiVerifica:
             else:
                 StringaPulita = NomeSuperiore
             DataTable.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,SIMBOLO])
+            VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,VALUE])
         else:
             VALUE = 1
             VERIFICA = "Correttamente vincolato tra livelli."
@@ -98,11 +99,13 @@ for Elemento in ElementiVerifica:
             else:
                 StringaPulita = NomeSuperiore
             DataTable.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,SIMBOLO])
+            VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,VALUE])
     else:
         VALUE = 0
         VERIFICA = "Non presenta vincolo superiore."
         SIMBOLO = ":cross_mark:"
         DataTable.append([Elemento.Category.Name,Elemento.Id,NomeBase,NomeSuperiore,VERIFICA,SIMBOLO])
+        VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,NomeSuperiore,VERIFICA,VALUE])
 
 
 output.print_md("# Verifica vincolo elementi verticali")
@@ -113,26 +116,28 @@ output.unfreeze()
 
 ###OPZIONI ESPORTAZIONE
 def VerificaTotale(lista):
-	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
+    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
 
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 
 if Scelta == "Si":
-	folder = pyrevit.forms.pick_folder()
-	if folder:
-		if VerificaTotale(VINCOLOLIVELLI_CSV_OUTPUT):
-			"""
-			VERIFICAUNITA_CSV_OUTPUT = []
-			VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-			VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
-			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+    folder = pyrevit.forms.pick_folder()
+    if folder:
+        copymonitor_csv_path = os.path.join(folder, "13_VincoloTraLivelli_Data.csv")
+        with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerows(VINCOLOLIVELLI_CSV_OUTPUT)
+        if VerificaTotale(VINCOLOLIVELLI_CSV_OUTPUT):
+            pass
             """
-		else:
-			copymonitor_csv_path = os.path.join(folder, "13_VincoloTraLivelli_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VINCOLOLIVELLI_CSV_OUTPUT)
+            VERIFICAUNITA_CSV_OUTPUT = []
+            VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
+            VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
+            copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
+            with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+            """
+        else:
+            pass
