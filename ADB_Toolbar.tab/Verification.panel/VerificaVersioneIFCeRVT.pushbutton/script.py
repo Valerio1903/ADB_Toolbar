@@ -66,7 +66,7 @@ if Cartella_Controllo:
                         Nome = riga.split("'")[1].split("'")[0]
                     elif "FILE_SCHEMA" in riga:
                         Versione = riga.split("'")[1].split("'")[0]
-                        if "4x3" not in Versione:
+                        if "4x3" not in Versione.lower():
                             DataTable.append([Nome, Versione,"Versione non conforme, usare IFC 4x3" ,":cross_mark:"])
                             VERIFICAVERSIONE_CSV_OUTPUT.append([Nome, Versione,"Versione non conforme - usare IFC 4x3",0])
                         else:
