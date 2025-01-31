@@ -145,7 +145,7 @@ else:
 output.print_md("---")
 output.print_md("## Verifica Griglie e Livelli")
 
-COPYMONITOR_CSV_DATA.append(["Id Elemento","Nome Elemento","Pin Attivo","Copy-Monitor","Stato"])
+COPYMONITOR_CSV_DATA.append(["Categoria","Id Elemento","Nome Elemento","Pin Attivo","Copy-Monitor","Stato"])
 # CHECK GRIGLIE
 if Host_Grids:
 	for Host_Grid in Host_Grids:
@@ -158,25 +158,25 @@ if Host_Grids:
 		if Host_Grid.IsMonitoringLinkElement():
 			temp.append(":white_heavy_check_mark:")
 			CSV_VALUE = "Monitoring"
-			MONITOR = 1
+			MONITOR = "Monitorato"
 		else:
 			temp.append(":cross_mark:")
 			CSV_VALUE = "Not Monitoring"
 			ErrorCounter += 1
-			MONITOR = 0
+			MONITOR = "Non Monitorato"
 		
 		if not Host_Grid.Pinned:
 			temp.append(":cross_mark:")
-			PIN = 0
+			PIN = "Non Pinnato"
 		else:
 			temp.append(":white_heavy_check_mark:")
-			PIN = 1
+			PIN = "Pinnato"
 		
 		STATUS = 0
 		if MONITOR and PIN:
 			STATUS = 1
 		
-		COPYMONITOR_CSV_DATA.append([Host_Grid.Id,Host_Grid.Name,PIN,MONITOR,STATUS])
+		COPYMONITOR_CSV_DATA.append(["Griglie",Host_Grid.Id,Host_Grid.Name,PIN,MONITOR,STATUS])
 		Grids_Status.append(temp)
 	#output.print_md("**ATTENZIONE, QUESTE GRIGLIE NON STANNO COPY-MONITORANDO NULLA**")
 	output.print_table(table_data = Grids_Status,title = "Verifica Copy-Monitor Griglie", columns = ["Id Elemento","Nome Griglia","Copy-Monitor","Pin Attivo"],formats = ["","",""])
@@ -217,7 +217,7 @@ if Host_Levels:
 		if check_Monitor and check_PIN:
 			STATUS = 1
 		
-		COPYMONITOR_CSV_DATA.append([Host_Level.Id,Host_Level.Name,PIN,MONITOR,STATUS])
+		COPYMONITOR_CSV_DATA.append(["Livelli",Host_Level.Id,Host_Level.Name,PIN,MONITOR,STATUS])
 		Levels_Status.append(temp)
 	#output.print_md("**ATTENZIONE, QUESTI LIVELLI NON STANNO COPY-MONITORANDO NULLA**")
 	output.print_table(table_data = Levels_Status,title = "Verifica Copy-Monitor Livelli", columns = ["Id Elemento","Nome Livello","Copy-Monitor","Pin Attivo"],formats = ["","",""])
@@ -255,7 +255,7 @@ if Scelta == "Si":
 
 		if 0 in COORDINATES_CSV_DATA[-1]:
 			
-			coordination_csv_path = os.path.join(folder, "07_01_CoordinationReport_Data.csv")
+			coordination_csv_path = os.path.join(folder, "07_CoordinationReport_Data.csv")
 			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
 				writer = csv.writer(file)
 				writer.writerows(COORDINATES_CSV_DATA) 
