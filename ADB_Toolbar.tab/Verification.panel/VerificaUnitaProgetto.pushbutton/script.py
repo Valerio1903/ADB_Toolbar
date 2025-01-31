@@ -27,8 +27,8 @@ from System.Collections.Generic import *
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument               
-app   = __revit__.Application      
+uidoc = __revit__.ActiveUIDocument			   
+app   = __revit__.Application	  
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
@@ -49,26 +49,49 @@ output = pyrevit.output.get_output()
 Project_Units = doc.GetUnits()
 
 ValoriDaControllare = [
-    SpecTypeId.Length,
-    SpecTypeId.Area,
-    SpecTypeId.Volume,
-    SpecTypeId.Distance
+	SpecTypeId.Length,
+	SpecTypeId.Area,
+	SpecTypeId.Volume,
+	SpecTypeId.Distance
 ]
+
+DizionarioCorrezione = {
+	"meters":"Metri",
+	"squareMeters":"Metri quadrati",
+	"cubicMeters":"Metri cubi",
+	"centimeters":"Centimetri",
+	"millimeters":"Millimetri"
+}
+
+DizionarioUnita = {
+	"LENGTH":"Lunghezza",
+	"AREA":"Area",
+	"VOLUME":"Volume",
+	"DISTANCE":"Distanza"
+}
 
 Format_Options = []
 for Valore in ValoriDaControllare:
-    Format_Options.append(Project_Units.GetFormatOptions(Valore).GetUnitTypeId().TypeId.ToString())
+	Format_Options.append(Project_Units.GetFormatOptions(Valore).GetUnitTypeId().TypeId.ToString())
 
 DataTable = []
 for Val,Tipo in zip(Format_Options,ValoriDaControllare):
-    Valore_Unita = Val.split(":")[1].split("-")[0]
-    Valore_Tipo = Tipo.TypeId.ToString().split(":")[1].split("-")[0].upper()
-    if "meter" in Valore_Unita.lower():
-        DataTable.append([Valore_Tipo,Valore_Unita,":white_heavy_check_mark:"])
-        VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unita,1])
-    else:
-        DataTable.append([Valore_Tipo,Valore_Unita,":cross_mark:"])
-        VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unita,0])
+
+	try:
+		Valore_Unita = DizionarioCorrezione[Val.split(":")[1].split("-")[0]]
+	except:
+		Valore_Unita = Val.split(":")[1].split("-")[0]
+	try:
+		Valore_Tipo = DizionarioUnita[Tipo.TypeId.ToString().split(":")[1].split("-")[0].upper()]
+	except:
+		Valore_Tipo = Tipo.TypeId.ToString().split(":")[1].split("-")[0].upper()
+			
+	if "metri" in Valore_Unita.lower():
+		DataTable.append([Valore_Tipo,Valore_Unita,":white_heavy_check_mark:"])
+		VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unita,1])
+	else:
+		DataTable.append([Valore_Tipo,Valore_Unita,":cross_mark:"])
+		VERIFICAUNITA_CSV_OUTPUT.append([Valore_Tipo,Valore_Unita,0])
 
 output.print_md("# Verifica unita Di Progetto")
 output.print_md("---")
@@ -86,19 +109,19 @@ if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
 		copymonitor_csv_path = os.path.join(folder, "15_UnitaProgetto_Data.csv")
+	with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+		writer = csv.writer(file)
+		writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+	if VerificaTotale(VERIFICAUNITA_CSV_OUTPUT):
+		"""
+		VERIFICAUNITA_CSV_OUTPUT = []
+		VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
+		VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
+		copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
 		with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-			writer = csv.writer(file)
-			writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
-		if VerificaTotale(VERIFICAUNITA_CSV_OUTPUT):
+		writer = csv.writer(file)
+		writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
 			"""
-			VERIFICAUNITA_CSV_OUTPUT = []
-			VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-			VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
-			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
-           		"""
-		else:
-			pass
+	else:
+		pass
 
