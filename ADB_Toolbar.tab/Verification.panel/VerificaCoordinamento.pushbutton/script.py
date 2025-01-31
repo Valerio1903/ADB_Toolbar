@@ -114,7 +114,7 @@ Host_NorthSouth = round(ConvertiUnita(Host_ProjectPosition.NorthSouth),4)
 Host_Elevazione = round(ConvertiUnita(Host_ProjectPosition.Elevation),4)
 
 COORDINATES_CSV_DATA.append([doc.Title,Host_Angle,Host_EastWest,Host_NorthSouth,Host_Elevazione])
-COORDINATES_CSV_DATA.append(["Esito",int(Linked_Angle == Host_Angle),int(Linked_EastWest == Host_EastWest),int(Linked_NorthSouth == Host_NorthSouth),int(Linked_Elevazione == Host_Elevazione)])
+#COORDINATES_CSV_DATA.append(["Esito",int(Linked_Angle == Host_Angle),int(Linked_EastWest == Host_EastWest),int(Linked_NorthSouth == Host_NorthSouth),int(Linked_Elevazione == Host_Elevazione)])
 
 output.print_md("---")
 output.print_md("## Verifica Coordinate Modelli")
