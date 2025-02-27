@@ -2,7 +2,7 @@
 
 """ Verifica la corretta nomenclatura di griglie e livelli  """
 __author__= 'Roberto Dolfini'
-__title__ = 'Check Nomenclatura Livelli'
+__title__ = 'Check Nomenclatura Griglie e Livelli'
 
 ######################################
 
