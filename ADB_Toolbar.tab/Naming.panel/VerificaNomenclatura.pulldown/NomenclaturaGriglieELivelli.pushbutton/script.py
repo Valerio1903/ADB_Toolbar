@@ -140,6 +140,10 @@ for Livello in Collector_Livelli:
             VERIFICA = "Codice livello errato"
             SIMBOLO = ":cross_mark:"
             VALUE = 0
+        elif Elevazione < 0 and SuddivisioneNome[0] == "ST" and SuddivisioneNome[3] =="P00":
+            VERIFICA = "Codifica Corretta"
+            SIMBOLO = ":white_heavy_check_mark:"
+            VALUE = 1
         elif Elevazione < 0 and "-" not in SuddivisioneNome[3]:
             VERIFICA = "Livello negativo senza trattino"
             SIMBOLO = ":cross_mark:"
@@ -148,6 +152,7 @@ for Livello in Collector_Livelli:
             VERIFICA = "Livello positivo con trattino"
             SIMBOLO = ":cross_mark:"
             VALUE = 0
+        
         else:
             VERIFICA = "Codifica Corretta"
             SIMBOLO = ":white_heavy_check_mark:"
