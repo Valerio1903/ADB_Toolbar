@@ -42,6 +42,7 @@ Levels_Status,Grids_Status = [], []
 
 COORDINATES_CSV_DATA = []
 COPYMONITOR_CSV_DATA =[]
+LOCATION_CSV_DATA = []
 
 # CREAZIONE DELLA VISTA DI OUTPUT
 output = pyrevit.output.get_output()
@@ -90,9 +91,9 @@ while Link_Iterator.MoveNext():
 Link_ProjectPosition = l[0].GetProjectPosition(XYZ.Zero)
 
 Linked_Angle = round(math.degrees(Link_ProjectPosition.Angle),2)
-Linked_EastWest = round(ConvertiUnita(Link_ProjectPosition.EastWest),4)
-Linked_NorthSouth = round(ConvertiUnita(Link_ProjectPosition.NorthSouth),4)
-Linked_Elevazione = round(ConvertiUnita(Link_ProjectPosition.Elevation),4)
+Linked_EastWest = round(ConvertiUnita(Link_ProjectPosition.EastWest),8)
+Linked_NorthSouth = round(ConvertiUnita(Link_ProjectPosition.NorthSouth),8)
+Linked_Elevazione = round(ConvertiUnita(Link_ProjectPosition.Elevation),8)
 
 # LA PRIMA RIGA SARA IL MODELLO LINKATO LA SECONDA IL MODELLO HOST
 COORDINATES_CSV_DATA.append(["Nome File","Angolo Nord Reale","Coordinata Est/Ovest","Coordinata Nord/Sud", "Elevazione"])
@@ -109,9 +110,9 @@ while Host_Iterator.MoveNext():
 
 Host_ProjectPosition = l[0].GetProjectPosition(XYZ.Zero)
 Host_Angle = round(math.degrees(Host_ProjectPosition.Angle),2)
-Host_EastWest = round(ConvertiUnita(Host_ProjectPosition.EastWest),4)
-Host_NorthSouth = round(ConvertiUnita(Host_ProjectPosition.NorthSouth),4)
-Host_Elevazione = round(ConvertiUnita(Host_ProjectPosition.Elevation),4)
+Host_EastWest = round(ConvertiUnita(Host_ProjectPosition.EastWest),8)
+Host_NorthSouth = round(ConvertiUnita(Host_ProjectPosition.NorthSouth),8)
+Host_Elevazione = round(ConvertiUnita(Host_ProjectPosition.Elevation),8)
 
 COORDINATES_CSV_DATA.append([doc.Title,Host_Angle,Host_EastWest,Host_NorthSouth,Host_Elevazione])
 #COORDINATES_CSV_DATA.append(["Esito",int(Linked_Angle == Host_Angle),int(Linked_EastWest == Host_EastWest),int(Linked_NorthSouth == Host_NorthSouth),int(Linked_Elevazione == Host_Elevazione)])
@@ -188,7 +189,6 @@ if Host_Levels:
 	for Host_Level in Host_Levels:
 		temp = []
 
-
 		temp.append(output.linkify((Host_Level.Id)))
 		temp.append(Host_Level.Name)
 		
@@ -217,15 +217,37 @@ if Host_Levels:
 		if check_Monitor and check_PIN:
 			STATUS = 1
 		
-		COPYMONITOR_CSV_DATA.append(["Livelli",Host_Level.Id,Host_Level.Name,PIN,MONITOR,STATUS])
+		COPYMONITOR_CSV_DATA.append(["Livelli",Host_Level.Id,Host_Level.Name,PIN,MONITOR])
 		Levels_Status.append(temp)
 	#output.print_md("**ATTENZIONE, QUESTI LIVELLI NON STANNO COPY-MONITORANDO NULLA**")
 	output.print_table(table_data = Levels_Status,title = "Verifica Copy-Monitor Livelli", columns = ["Id Elemento","Nome Livello","Copy-Monitor","Pin Attivo"],formats = ["","",""])
 else:
 	output.print_md(":cross_mark: **ATTENZIONE, NON SONO PRESENTI LIVELLI NEL MODELLO**")
 
+# VERIFICA COORDINATE LATITUDINE E LONGITUDINE
 
+SiteLocationLink = LinkSelezionato.GetLinkDocument().SiteLocation
+degLink_Latitude = str(round(SiteLocationLink.Latitude * (180 / math.pi),8))
+degLink_Longitude = str(round(SiteLocationLink.Longitude * (180 / math.pi),8))
+degHost_Latitude = str(round(doc.SiteLocation.Latitude * (180 / math.pi),8))
+degHost_Longitude = str(round(doc.SiteLocation.Longitude * (180 / math.pi),8))
 
+output.print_md("---")
+output.print_md("## Verifica Latitudine e Longitudine")
+
+if degLink_Latitude == degHost_Latitude and degLink_Longitude == degHost_Longitude:
+	output.print_md(":white_heavy_check_mark: **LATITUDINE E LONGITUDINE CONFORME TRA I DUE MODELLI**")
+
+else:
+	output.print_md(":cross_mark: **ATTENZIONE, LATITUDINE E LONGITUDINE NON CONFORME TRA I DUE MODELLI!**")
+	#ErrorCounter += 1
+	
+output.print_md("**Modello URS: Latitudine : {0} - Longitudine : {1}**".format(degLink_Latitude,degLink_Longitude))
+output.print_md("**Modello Host: Latitudine : {0} - Longitudine : {1}**".format(degHost_Latitude,degHost_Longitude))
+
+LOCATION_CSV_DATA.append(["Nome File","Latitudine","Longitudine"])
+LOCATION_CSV_DATA.append([SFL.split(".rvt")[0],degLink_Latitude,degLink_Longitude])
+LOCATION_CSV_DATA.append([doc.Title,degHost_Latitude,degHost_Longitude])
 
 ###OPZIONI ESPORTAZIONE
 def VerificaTotale(lista):
@@ -253,20 +275,16 @@ if Scelta == "Si":
 				writer = csv.writer(file)
 				writer.writerows(COPYMONITOR_CSV_DATA)
 
-		if 0 in COORDINATES_CSV_DATA[-1]:
+		
+		coordination_csv_path = os.path.join(folder, "07_CoordinationReport_Data.csv")
+		with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(COORDINATES_CSV_DATA) 
 			
-			coordination_csv_path = os.path.join(folder, "07_CoordinationReport_Data.csv")
-			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(COORDINATES_CSV_DATA) 
-			
-		else:
-			""" IN ATTESA DI INFO
-			COORDINATES_CSV_DATA = []
-			COORDINATES_CSV_DATA.append(["Nome Verifica","Stato"])
-			COORDINATES_CSV_DATA.append(["Georeferenziazione e Orientamento - Coordinate e Nord di progetto correttamente valorizzato.",1])
-			coordination_csv_path = os.path.join(folder, "07_CoordinationReport_Data.csv")
-			with codecs.open(coordination_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(COORDINATES_CSV_DATA)
-			"""
+
+
+		location_csv_path = os.path.join(folder, "07_LocationReport_Data.csv")
+		with codecs.open(location_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(LOCATION_CSV_DATA)
+		
