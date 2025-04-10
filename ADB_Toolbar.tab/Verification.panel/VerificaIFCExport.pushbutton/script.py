@@ -44,7 +44,7 @@ import pyrevit
 
 # CREAZIONE LISTE DI OUTPUT DATA
 IFC_MATCH_CSV_OUTPUT = []
-IFC_MATCH_CSV_OUTPUT.append(["Nome Elemento","Nome Famiglia","Nome Tipo","ID Elemento","Verifica","Stato"])
+IFC_MATCH_CSV_OUTPUT.append(["Nome Elemento","Ifc Class","GUID","ID Elemento","Presenza Nativo","Presenza IFC","Stato"])
 
 # Trova il percorso della cartella corrente (dove si trova anche lettore.py)
 current_folder = os.path.dirname(__file__)
@@ -148,11 +148,16 @@ output.print_md("---")
 #! VERIFICA ELEMENTI PRESENTI IN IFC E NON IN NATIVO
 for nome, tipo, guid, elementid in zip(NomeFile,IfcClass,GuidFile,ElementIdFile):
     VALUE = 1
+    IFC = 1
+    NATIVO = 1
     if guid not in GuidNativo:
         DataTableIFC.append([nome, tipo, guid, elementid, ":white_heavy_check_mark:", ":cross_mark:"])
         CONTROLLO = 1
         VALUE = 0
-    IFC_MATCH_CSV_OUTPUT.append([nome, tipo, guid, elementid, VALUE])
+        NATIVO = 0
+        IFC = 1
+    IFC_MATCH_CSV_OUTPUT.append([nome, tipo, guid, elementid,NATIVO,IFC, VALUE])
+    
 #! VERIFICA ELEMENTI PRESENTI IN NATIVO E NON IN IFC
 for nome, tipo, guidnat,elementid in zip(NomeNativo,IfcClassNativo,GuidNativo,ElementIdNativo):
     VALUE = 1
@@ -160,7 +165,9 @@ for nome, tipo, guidnat,elementid in zip(NomeNativo,IfcClassNativo,GuidNativo,El
         DataTableNativo.append([nome, tipo, guidnat, output.linkify(elementid), ":cross_mark:", ":white_heavy_check_mark:"])
         CONTROLLO = 2
         VALUE = 0
-    IFC_MATCH_CSV_OUTPUT.append([nome, tipo, guid, elementid, VALUE])
+        NATIVO = 1
+        IFC = 0
+    IFC_MATCH_CSV_OUTPUT.append([nome, tipo, guid, elementid,NATIVO,IFC,VALUE])
 
 #! PRINT TABELLA IN CASO DI VERIFICA FALLITA
 if CONTROLLO != 0:
