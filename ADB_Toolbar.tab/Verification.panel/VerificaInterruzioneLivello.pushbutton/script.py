@@ -30,8 +30,8 @@ from decimal import Decimal, ROUND_DOWN, getcontext
 
 ##############################################################
 doc   = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument         
-app   = __revit__.Application     
+uidoc = __revit__.ActiveUIDocument   
+app   = __revit__.Application   
 aview = doc.ActiveView
 output = pyrevit.output.get_output()
 
@@ -41,19 +41,27 @@ output = pyrevit.output.get_output()
 
 # CREAZIONE LISTE DI OUTPUT DATA
 VINCOLOLIVELLI_CSV_OUTPUT = []
-VINCOLOLIVELLI_CSV_OUTPUT.append(["Categoria","Id Elemento","Livello Base","Livello Superiore","Verifica","Stato"])
+VINCOLOLIVELLI_CSV_OUTPUT.append(["Categoria","Id Elemento","Livello Base","Livello Superiore","Offset Base","Offset Superiore","Verifica","Stato"])
 
 
-#ESTRAZIONE LIVELLI E RELATIVE INFO
-LivelliDocumento = FilteredElementCollector(doc).OfClass(Level).ToElements()
+# Funzione: recupera livelli ordinati per elevazione e suddivisi per disciplina
+def recupera_livelli(doc):
+    livelli = FilteredElementCollector(doc).OfClass(Level).ToElements()
+    livelli_con_altitudine = [(liv.Id, liv.get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble()) for liv in livelli]
+    livelli_ordinati = sorted(livelli_con_altitudine, key=lambda x: x[1])
 
-DatiLivelli = []
-for Livello in LivelliDocumento:
-    DatiLivelli.append([Livello.Id,Livello.Elevation])
+    livelli_arc, livelli_str, livelli_ignoti = [], [], []
+    for livello_id, _ in livelli_ordinati:
+        livello = doc.GetElement(livello_id)
+        codice = livello.Name.split("_")[0]
+        if "AR" in codice:
+            livelli_arc.append(livello)
+        elif "ST" in codice:
+            livelli_str.append(livello)
+        else:
+            livelli_ignoti.append(livello)
 
-DatiLivelli.sort(key=lambda x: x[1])
-#ESTRAZIONE SOLO ID DEI LIVELLI
-IDLivelli = [x[0] for x in DatiLivelli]
+    return livelli_arc, livelli_str, livelli_ignoti
 
 #ESTRAZIONE MURI - COLONNE ED INFO
 CatFilter = List[BuiltInCategory]()
@@ -67,56 +75,71 @@ ElementiVerifica = FilteredElementCollector(doc).WherePasses(FiltroCategorie).Wh
 
 DataTable = []
 
+livelli_arc, livelli_str, livelli_ignoti = recupera_livelli(doc)
+
 for Elemento in ElementiVerifica:
     try:
         Base = Elemento.get_Parameter(BuiltInParameter.WALL_BASE_CONSTRAINT).AsElementId()
         Superiore = Elemento.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE).AsElementId()
         NomeBase = Elemento.get_Parameter(BuiltInParameter.WALL_BASE_CONSTRAINT).AsValueString()
         NomeSuperiore = Elemento.get_Parameter(BuiltInParameter.WALL_HEIGHT_TYPE).AsValueString()
+        base_offset = Elemento.get_Parameter(BuiltInParameter.WALL_BASE_OFFSET)
+        param_offset = Elemento.get_Parameter(BuiltInParameter.WALL_TOP_OFFSET)
+        bot_offset_value = base_offset.AsDouble() if base_offset and base_offset.HasValue else 0.0
+        top_offset_value = param_offset.AsDouble() if param_offset and param_offset.HasValue else 0.0
+        OffsetBase = round(bot_offset_value*0.3048, 3) if bot_offset_value else 0.0
+        OffsetSuperiore = round(top_offset_value*0.3048, 3) if top_offset_value else 0.0
+
     except:
         Base = Elemento.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM).AsElementId()
         Superiore = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM).AsElementId()
         NomeBase = Elemento.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_PARAM).AsValueString()
-        NomeSuperiore = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM).AsValueString()    
+        NomeSuperiore = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_PARAM).AsValueString() 
+        base_offset = Elemento.get_Parameter(BuiltInParameter.FAMILY_BASE_LEVEL_OFFSET_PARAM)
+        param_offset = Elemento.get_Parameter(BuiltInParameter.FAMILY_TOP_LEVEL_OFFSET_PARAM)
+        bot_offset_value = base_offset.AsDouble() if base_offset and base_offset.HasValue else 0.0
+        top_offset_value = param_offset.AsDouble() if param_offset and param_offset.HasValue else 0.0
+        OffsetBase = round(bot_offset_value*0.3048, 3) if bot_offset_value else 0.0
+        OffsetSuperiore = round(top_offset_value*0.3048, 3) if top_offset_value else 0.0
 
-    if Superiore != ElementId(-1):
-        if IDLivelli[IDLivelli.index(Base)+1] != Superiore:
+    VALUE = 1
+    VERIFICA = "Elemento vincolato correttamente tra livelli."
+    SIMBOLO = ":white_heavy_check_mark:"
+
+    if "AR" in NomeBase and "AR" in NomeSuperiore:
+        IDLivelliAR = [livello.Id for livello in livelli_arc]
+        if Superiore != IDLivelliAR[IDLivelliAR.index(Base)+1]:
             VALUE = 0
-            VERIFICA = "Elemento non correttamente vincolato tra livelli."
+            VERIFICA = "Elemento non vincolato correttamente tra livelli."
             SIMBOLO = ":cross_mark:"
-            if ":" in NomeSuperiore:
-                StringaPulita = NomeSuperiore.split(":")[1]
-            else:
-                StringaPulita = NomeSuperiore
-            DataTable.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,SIMBOLO])
-            VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,VALUE])
-        else:
-            VALUE = 1
-            VERIFICA = "Correttamente vincolato tra livelli."
-            SIMBOLO = ":white_heavy_check_mark:"
-            if ":" in NomeSuperiore:
-                StringaPulita = NomeSuperiore.split(":")[1]
-            else:
-                StringaPulita = NomeSuperiore
-            DataTable.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,SIMBOLO])
-            VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,StringaPulita,VERIFICA,VALUE])
-    else:
+        
+    elif "ST" in NomeBase and "ST" in NomeSuperiore:
+        IDLivelliST = [livello.Id for livello in livelli_str]
+        if Superiore != IDLivelliST[IDLivelliST.index(Base)+1]:
+            VALUE = 0
+            VERIFICA = "Elemento non vincolato correttamente tra livelli."
+            SIMBOLO = ":cross_mark:"
+        
+    elif "ST" in NomeBase and "AR" in NomeSuperiore or "AR" in NomeBase and "ST" in NomeSuperiore:
         VALUE = 0
-        VERIFICA = "Non presenta vincolo superiore."
+        VERIFICA = "Elemento vincolato tra livelli di discipline diverse."
         SIMBOLO = ":cross_mark:"
-        DataTable.append([Elemento.Category.Name,Elemento.Id,NomeBase,NomeSuperiore,VERIFICA,SIMBOLO])
-        VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,NomeSuperiore,VERIFICA,VALUE])
+        
+    elif Superiore == ElementId.InvalidElementId:
+        VALUE = 0
+        VERIFICA = "Elemento senza vincolo superiore."
+        SIMBOLO = ":cross_mark:"
 
+    
+    DataTable.append([Elemento.Category.Name,output.linkify(Elemento.Id),NomeBase,NomeSuperiore,OffsetBase,OffsetSuperiore,VERIFICA,SIMBOLO])
+    VINCOLOLIVELLI_CSV_OUTPUT.append([Elemento.Category.Name,Elemento.Id,NomeBase,NomeSuperiore,OffsetBase,OffsetSuperiore,VERIFICA,VALUE])
 
+output.freeze()
 output.print_md("# Verifica vincolo elementi verticali")
 output.print_md("---")
-output.freeze()
-output.print_table(table_data = DataTable,columns = ["Categoria","Id Elemento","Livello Base","Livello Superiore","Verifica","Stato"],formats = ["","","","","",""])
+output.print_table(table_data = DataTable,columns = ["Categoria","Id Elemento","Livello Base","Livello Superiore","Offset Superiore","Verifica","Stato"],formats = ["","","","","",""])
 output.unfreeze()
 
-###OPZIONI ESPORTAZIONE
-def VerificaTotale(lista):
-    return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
 
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
@@ -128,16 +151,3 @@ if Scelta == "Si":
         with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
             writer = csv.writer(file)
             writer.writerows(VINCOLOLIVELLI_CSV_OUTPUT)
-        if VerificaTotale(VINCOLOLIVELLI_CSV_OUTPUT):
-            pass
-            """
-            VERIFICAUNITA_CSV_OUTPUT = []
-            VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-            VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
-            copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
-            with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
-            """
-        else:
-            pass

@@ -75,9 +75,9 @@ if Cartella_Controllo:
         elif ".rvt" in NomeFile:
             Versione = BasicFileInfo.Extract(PercorsoFile).Format
             Nome = NomeFile
-            if "2025" not in Versione:
-                DataTable.append([Nome, Versione,"Versione non conforme, usare 2025" , ":cross_mark:"])
-                VERIFICAVERSIONE_CSV_OUTPUT.append([Nome, Versione,"Versione non conforme - usare 2025",0])
+            if "2024" not in Versione:
+                DataTable.append([Nome, Versione,"Versione non conforme, usare 2024" , ":cross_mark:"])
+                VERIFICAVERSIONE_CSV_OUTPUT.append([Nome, Versione,"Versione non conforme - usare 20245",0])
             else:
                 DataTable.append([Nome, Versione,"Versione conforme.", ":white_heavy_check_mark:"])
                 VERIFICAVERSIONE_CSV_OUTPUT.append([Nome, Versione,"Versione conforme.",1])

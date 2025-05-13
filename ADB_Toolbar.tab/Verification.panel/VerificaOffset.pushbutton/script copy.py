@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Verifica la corretta collocazione altimetrica delle famiglie caricabili rispetto al livello di host  """
+""" Verifica la corretta collocazione altimetrica degli elementi rispetto al livello di host  """
 __author__= 'Roberto Dolfini'
 __title__ = 'Verifica Offset\nElementi'
 
@@ -40,14 +40,69 @@ t = Transaction(doc, "TROUBLESHOOTING")
 
 # CREAZIONE LISTE DI OUTPUT DATA
 OFFSET_CSV_DATA = []
-OFFSET_CSV_DATA.append(["Categoria","ID Elemento","Verifica","Offset Rilevato","Stato"])
+OFFSET_CSV_DATA.append(["Famiglia e Tipo","ID Elemento","Categoria","Verifica","Stato"])
 
+# INPUT DA PARTE DELL'UTENTE DEI VALORI DI VERIFICA
+from rpw.ui.forms import (FlexForm, Label, ComboBox, TextBox, TextBox,Separator, Button, CheckBox)
+components = [
+			Label('Spessore Architettonico:'),
+			TextBox('sp_arc', Text="0.30"),
+			Label('Spessore Strutturale:'),
+			TextBox('sp_str', Text="0.20"),
+			Button('Select'),
+			]
+form = FlexForm('Definisci gli spessori di calcolo', components)
+form.show()
+
+if not form.values:
+	script.exit()
+	
+ValoriUtente = form.values
+
+# CATEGORIE MEP
+
+mep_built_in_categories = [
+	"OST_ElectricalFixtures",
+	"OST_LightingFixtures",
+	"OST_LightingDevices",
+	"OST_CableTray",
+	"OST_CableTrayFitting",
+	"OST_Conduit",
+	"OST_ConduitFitting",
+	"OST_DataDevices",
+	"OST_FireAlarmDevices",
+	"OST_NurseCallDevices",
+	"OST_SecurityDevices",
+	"OST_TelephoneDevices",
+	"OST_CommunicationDevices",
+	"OST_DuctCurves",
+	"OST_DuctFitting",
+	"OST_DuctAccessory",
+	"OST_DuctInsulations",
+	"OST_DuctLinings",
+	"OST_DuctSystem",
+	"OST_MechanicalEquipment",
+	"OST_PipeCurves",
+	"OST_PipeFitting",
+	"OST_PipeAccessory",
+	"OST_PlumbingFixtures",
+	"OST_PipeInsulations",
+	"OST_Sprinklers",
+	"OST_PipingSystem",
+	"OST_DuctTerminal"
+]
+structural_built_in_categories = [
+	"OST_StructuralColumns",
+	"OST_StructuralFraming",
+]
+# CONVERTO STRINGHE IN ATTRIBUTI DI BUILTINCATEGORY
+mep_built_in_category_enums = [getattr(BuiltInCategory, category) for category in mep_built_in_categories]
 
 def ConvertiUnita(valore):
 	Valore_Decimale = Decimal(UnitUtils.Convert(valore,UnitTypeId.Feet,UnitTypeId.Meters))
 	getcontext().prec = 4
 	#Valore_Raffinato = Valore_Decimale.quantize(Precisione_Decimale, rounding=ROUND_DOWN)
-	return round(Valore_Decimale,4)
+	return Valore_Decimale
 
 def VerificaRange(offset, range):
 	if offset > range:
@@ -67,163 +122,46 @@ def EstraiFamigliaOggetto(oggetto):
 
 ######################################################################################
 
+# SPESSORI ARC E STR A SCELTA DELL'UTENTE
+
+Spessore_ARC = float(ValoriUtente['sp_arc'])
+Spessore_STR = float(ValoriUtente['sp_str'])
+Spessore_Totale = Spessore_ARC + Spessore_STR
 
 output.print_md("# Verifica Offset Elementi")
 output.print_md("---")
 
-# pyRevit Script - Verifica Livelli e Posizione Caricabili
+# GESTIONE LIVELLI E SORTING PER CONSEQUENZIALITA (BYPASSA EVENTUALI ERRORI IN ORDINE DI CREAZIONE)
 
-from Autodesk.Revit.DB import *
-from pyrevit import script
+Livelli = FilteredElementCollector(doc).OfClass(Level).ToElements()
+CoppiaLivelliAltimetria = [list((Livello.Id,ConvertiUnita(Livello.get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble()))) for Livello in Livelli]
+LivelliOrdinati = sorted(CoppiaLivelliAltimetria, key=lambda altezza: altezza[1])
+##### CALCOLO I RANGE "LIMITE"
+RangeCompetenza = []
+RangeRelativo = []
 
-output = script.get_output()
+for Index,Livello in enumerate(LivelliOrdinati):
 
-# Funzione: conversione unità Revit -> metri
-def converti_unita(valore):
-	return round(valore * 0.3048, 2)
-
-# Funzione: calcolo altezza di un FamilyInstance
-def calcola_altezza(elemento):
-	CategorieDavanzali = [BuiltInCategory.OST_Windows, BuiltInCategory.OST_Doors]
-
-	if elemento.Category.BuiltInCategory in CategorieDavanzali:
-		offset = elemento.get_Parameter(BuiltInParameter.INSTANCE_SILL_HEIGHT_PARAM)
-
-	else:
-		offset = elemento.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)
-
-	return converti_unita(offset.AsDouble())
-
-# Funzione: recupera livelli ordinati per elevazione e suddivisi per disciplina
-def recupera_livelli(doc):
-	livelli = FilteredElementCollector(doc).OfClass(Level).ToElements()
-	livelli_con_altitudine = [(liv.Id, liv.get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble()) for liv in livelli]
-	livelli_ordinati = sorted(livelli_con_altitudine, key=lambda x: x[1])
-
-	livelli_arc, livelli_str, livelli_ignoti = [], [], []
-		
-	for livello_id, _ in livelli_ordinati:
-		livello = doc.GetElement(livello_id)
-		codice = livello.Name.split("_")[0]
-		if "AR" in codice:
-			livelli_arc.append(livello)
-		elif "ST" in codice:
-			livelli_str.append(livello)
-		else:
-			livelli_ignoti.append(livello)
-
-	return livelli_arc, livelli_str, livelli_ignoti
-
-def verifica_elevazione_superiore(elevazione, livelli, id_livello):
-	if elevazione < 0:
-		return 0,":cross_mark:","Offset Negativo."
-		
 	try:
-		Interpiano = livelli[id_livello + 1].Elevation
-		if elevazione > Interpiano:
-			return 0,":cross_mark:","Oggetto sopra l'interpiano."
-		else:
-			return 1,":white_heavy_check_mark:","Oggetto conforme."
-		
+		LimiteInferiore = ConvertiUnita(doc.GetElement(Livello[0]).get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble())-Decimal(Spessore_ARC)
+		LimiteSuperiore = ConvertiUnita(doc.GetElement(LivelliOrdinati[Index+1][0]).get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble())-Decimal(Spessore_Totale)
+		Differenza = LimiteInferiore-LimiteSuperiore
+		RangeCompetenza.append([LimiteInferiore,LimiteSuperiore])
+		RangeRelativo.append(round(Differenza,2))
+
 	except:
-		if elevazione > 15: #! valore forfettario aggiunto per evitare modellazioni a caso
-			return 0,":cross_mark:","Oggetto con elevazione troppo alta."
-		else:
-			return 1,":white_heavy_check_mark:","Oggetto conforme."
+		LimiteInferiore = ConvertiUnita(doc.GetElement(Livello[0]).get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble())-Decimal(Spessore_ARC)
+		#LimiteSuperiore = ConvertiUnita(doc.GetElement(LivelliOrdinati[Index+1][0]).get_Parameter(BuiltInParameter.LEVEL_ELEV).AsDouble())-Decimal(Spessore_Totale)
+		RangeCompetenza.append([LimiteInferiore,1000])
+		RangeRelativo.append([100-LimiteInferiore])
 
 
-# Funzione: stampa livelli per disciplina
-def stampa_livelli(label, lista):
-	output.print_md("***Livelli {}:***".format(label))
-	for livello in lista:
-		output.print_md("**{}** : {}m".format(livello.Name, converti_unita(livello.Elevation)))
-	output.print_md("---")
+	
+##### DEFINIZIONE DIZIONARIO INFO
+RegroupInfo = {}
+for Livello,Relativo,Range in zip(LivelliOrdinati,RangeRelativo,RangeCompetenza):
+	RegroupInfo[Livello[0]]=[Relativo,Range]
 
-def recupera_elementi(doc):
-	categorie_escluse = [BuiltInCategory.OST_CurtainWallPanels, BuiltInCategory.OST_CurtainWallMullions]
-	elementi = FilteredElementCollector(doc, doc.ActiveView.Id).WhereElementIsNotElementType().ToElements()
-	risultato = []
-	for elem in elementi:
-		if isinstance(elem, FamilyInstance) and elem.Category.BuiltInCategory not in categorie_escluse:
-			if hasattr(elem.Host, "CurtainGrid") and elem.Host.CurtainGrid: 
-				continue
-			else:
-				risultato.append(elem)
-	return risultato
-
-# Funzione: verifica posizione rispetto al livello host, con controllo esplicito su Z negativa
-def verifica_elementi(elementi, livelli_arc, livelli_str):
-	livelli_arc_id = [l.Id for l in livelli_arc]
-	livelli_str_id = [l.Id for l in livelli_str]
-
-
-	extra = []
-	Risultato = []
-	for elem in elementi:
-		z = calcola_altezza(elem)
-		host = elem.Host
-		
-		if isinstance(host, Level):
-			host_id = host.Id
-		elif hasattr(host, "LevelId"):
-			host_id = host.LevelId
-		elif not host and elem.Category.BuiltInCategory == BuiltInCategory.OST_GenericModel:
-			host_id = elem.LevelId
-		else:
-			host_id = elem.LevelId
-		lista_corrente = None
-		livelli_id_corrente = []
-
-		if host_id in livelli_arc_id:
-			lista_corrente = livelli_arc
-			livelli_id_corrente = livelli_arc_id
-		elif host_id in livelli_str_id:
-			lista_corrente = livelli_str
-			livelli_id_corrente = livelli_str_id
-		else:
-			extra.append((elem, z))
-			continue
-		Risultato.append([elem,z,verifica_elevazione_superiore(z, lista_corrente, livelli_id_corrente.index(host_id))])
-
-		"""
-		if z < 0:
-			verifiche.append(("Oggetto con offset negativo", elem, z))
-		elif z > quota_superiore:
-			verifiche.append(("Oggetto sopra l'interpiano", elem, z))
-		else:
-			verifiche.append(("Oggetto conforme", elem, z))
-		"""
-	return Risultato
-
-
-Elementi = recupera_elementi(doc)
-livelli_arc, livelli_str, livelli_errati = recupera_livelli(doc)
-
-
-output.print_md("---")
-stampa_livelli("AR", livelli_arc)
-stampa_livelli("ST", livelli_str)
-
-if livelli_errati:
-	output.print_md("***Livelli con nome errato:***")
-	for l in livelli_errati:
-		output.print_md("**{}** : {}m".format(l.Name, converti_unita(l.Elevation)))
-output.print_md("---")
-
-
-elementi_posizionati = recupera_elementi(doc)
-
-RisultatiAnalisi = verifica_elementi(elementi_posizionati, livelli_arc, livelli_str)
-
-DataTable = []
-for elem, z, (stato, simbolo,messaggio) in RisultatiAnalisi:
-	DataTable.append([elem.Category.Name,output.linkify(elem.Id),z,simbolo,messaggio])
-	if simbolo == ":cross_mark:":
-		OFFSET_CSV_DATA.append([elem.Category.Name,elem.Id,messaggio,z,0])
-	else:
-		OFFSET_CSV_DATA.append([elem.Category.Name,elem.Id,messaggio,z,1])
-
-"""
 
 # DEFINIZIONE COLORI PER TROUBLESHOOTING
 rosso = Color(255, 0, 0)
@@ -244,7 +182,9 @@ Override_BASSO = OverrideGraphicSettings()
 Override_BASSO.SetProjectionLineColor(blu)
 #
 
-
+#Override_TROPPOLUNGO = OverrideGraphicSettings()
+#Override_TROPPOLUNGO.SetSurfaceForegroundPatternId(SolidPattern.Id)
+#Override_TROPPOLUNGO.SetSurfaceForegroundPatternColor(viola)
 
 
 # AVVIO VERIFICA
@@ -304,9 +244,6 @@ for single_element in AllElements:
 		#OFFSET_CSV_DATA.append([Famiglia,single_element.Id,single_element.Category,"ELEMENTO NON VERIFICABILE",0])
 
 t.Commit()
-"""
-
-
 
 # CREAZIONE DELLA VISTA DI OUTPUT
 if len(DataTable) != 0:
@@ -315,13 +252,12 @@ if len(DataTable) != 0:
 	output = pyrevit.output.get_output()
 	output.print_md("# Verifica Offset Da Livello Elementi")
 	output.print_md("---")
-	output.print_table(table_data = OrderedData, columns = ["Categoria Elemento", "ID Elemento","Elevazione", "Stato"], formats = ["","","",""])
+	output.print_md("***Spessore Architettonico: {}m Spessore Strutturale : {}m***".format(Spessore_ARC,Spessore_STR))
+	output.print_md("---")
+	output.print_table(table_data = OrderedData, columns = ["Nome Elemento", "ID Elemento","Categoria", "Stato"], formats = ["","","",""])
 	output.print_md("---")
 else:
 	output.print_md(":white_heavy_check_mark: **Tutti gli elementi sono inseriti correttamente.** :white_heavy_check_mark:")
-
-
-
 
 ###OPZIONI ESPORTAZIONE
 def VerificaTotale(lista):
@@ -339,9 +275,19 @@ if Scelta == "Si":
 			writer.writerows(OFFSET_CSV_DATA)
 		if VerificaTotale(OFFSET_CSV_DATA):
 			pass
-
+			""" PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
+				OFFSET_CSV_DATA = []
+				OFFSET_CSV_DATA.append(["Nome Verifica","Stato"])
+				OFFSET_CSV_DATA.append(["Regole di modellazione - Elementi posizionati correttamente.",1])
+				parameter_csv_path = os.path.join(folder, "13_XX_ElementOffset_Data.csv")
+				# Use codecs to open the file with UTF-8 encoding
+				with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+					writer = csv.writer(file)
+					writer.writerows(OFFSET_CSV_DATA)
+			"""
 		else:
 			pass
 			
+
 
 

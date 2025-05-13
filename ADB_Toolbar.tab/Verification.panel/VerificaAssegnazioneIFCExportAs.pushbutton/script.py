@@ -101,24 +101,74 @@ def VerificaCorrispondenza(Categoria, Current_IfcClass, Current_Predef, Dizionar
 
 RVT_Cat, RVT_Built, IFCCLASS, IFCPREDEFINEDTYPE, Descrizione = [],[],[],[],[]
 # ACCEDO AL CSV DI CONTROLLO E CREO IL DIZIONARIO DI VERIFICA
-DizionarioDiVerifica = {}
-with open(csv_dir, 'r') as f:
-    reader = csv.reader(f, delimiter=',')
-    for row in reader:
+
+
+
+
+MEP = []
+ARC = []
+STR = []
+
+with open(csv_dir, 'r') as csvfile:
+    reader = csv.reader(csvfile)
+    for i, row in enumerate(reader):
+        # Rimuovi il BOM dalla prima cella della prima riga, se presente
+        if i == 0:
+            row[0] = "Accessori per condotti"
         if len(row) == 5:
-            RVT_Cat.append(row[0])
-            RVT_Built.append(row[1])
-            IFCCLASS.append(row[2])
-            IFCPREDEFINEDTYPE.append(row[3])
-            Descrizione.append(row[4])
-    
-        
+            valori = [row[0], row[1], row[2], row[3], row[4]]
+        else:
+            valori = [row[0], row[1], row[2], row[3]]
+
+        if 0 <= i <= 81:
+            MEP.append(valori)
+        elif 82 <= i <= 116:
+            ARC.append(valori)
+        elif 117 <= i <= 130:
+            STR.append(valori)
+
+codici_impianti = ["II", "IE", "IM","IS"]
+
+if "ST" in doc.Title.split("_")[4]:
+    for list in STR:
+        RVT_Cat.append(list[0])
+        RVT_Built.append(list[1])
+        IFCCLASS.append(list[2])
+        IFCPREDEFINEDTYPE.append(list[3])
+        if len(list) == 5:
+            Descrizione.append(list[4])
+
+elif "AR" in doc.Title.split("_")[4]:
+    for list in ARC:
+        RVT_Cat.append(list[0])
+        RVT_Built.append(list[1])
+        IFCCLASS.append(list[2])
+        IFCPREDEFINEDTYPE.append(list[3])
+        if len(list) == 5:
+            Descrizione.append(list[4])
+
+
+elif doc.Title.split("_")[4] in codici_impianti:
+    for list in MEP:
+        RVT_Cat.append(list[0])
+        RVT_Built.append(list[1])
+        IFCCLASS.append(list[2])
+        IFCPREDEFINEDTYPE.append(list[3])
+        if len(list) == 5:
+            Descrizione.append(list[4])
+
+
+
+
+# METTERE LA DIPENDENZA DAL NOME DEL FILE
+DizionarioDiVerifica = {}     
 for Categoria,IfcClass,PredType,DescrizioneCampi in zip(RVT_Built,IFCCLASS,IFCPREDEFINEDTYPE,Descrizione):
     if Categoria not in DizionarioDiVerifica:
         DizionarioDiVerifica[Categoria] = []
         DizionarioDiVerifica[Categoria].append([IfcClass,PredType,DescrizioneCampi])
     else:
         DizionarioDiVerifica[Categoria].append([IfcClass,PredType,DescrizioneCampi])
+
 
 # DEFINIZIONE COLORI PER TROUBLESHOOTING
 rosso = Color(255,100, 100)
@@ -153,7 +203,7 @@ Temp_Collector_IFC_Valorizzato = FilteredElementCollector(doc,aview.Id).WherePas
 Collector_IFC_Valorizzato = []
 # VERIFICA INCROCIATA PER EVITARE VALORI VUOTI 
 for elemento in Temp_Collector_IFC_Valorizzato:
-    if elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_ELEMENT_AS).AsString() != "":
+    if elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_ELEMENT_AS).AsString() != "" and "CenterLine" not in str(elemento.Category.BuiltInCategory):
         Collector_IFC_Valorizzato.append(elemento)
         
 
@@ -198,7 +248,7 @@ MEPBuiltInCategories = [
 
 Lista_Elementi_IFC_NON_Valorizzato = []
 for Elemento in Collector_IFC_NON_Valorizzato:
-    if Elemento :
+    if Elemento and "CenterLine" not in str(Elemento.Category.BuiltInCategory):
         try:
             if Elemento.Category.CategoryType == CategoryType.Model and Elemento.Category is not None :
                 if Elemento.Category.HasMaterialQuantities or str(Elemento.Category.BuiltInCategory) in MEPBuiltInCategories:
@@ -220,13 +270,16 @@ DataTable = []
 t.Start()
 
 for Elemento in Lista_Elementi_IFC_NON_Valorizzato:
-    # ESTRAGGO INFORMAZIONI
-    Categoria = Elemento.Category.Name
-    ID_Elemento = Elemento.Id
-    Nome_Famiglia = EstraiInfoOggetto(Elemento)[0]
-    Nome_Tipo = EstraiInfoOggetto(Elemento)[1]
-    Tipologia = "Sistema"
-    aview.SetElementOverrides(ID_Elemento, Override_Sistema)
+    if "CenterLine" in str(Elemento.Category.BuiltInCategory):
+        continue
+    else:
+        # ESTRAGGO INFORMAZIONI
+        Categoria = Elemento.Category.Name
+        ID_Elemento = Elemento.Id
+        Nome_Famiglia = EstraiInfoOggetto(Elemento)[0]
+        Nome_Tipo = EstraiInfoOggetto(Elemento)[1]
+        Tipologia = "Sistema"
+        aview.SetElementOverrides(ID_Elemento, Override_Sistema)
 
     if isinstance(Elemento,FamilyInstance):
         if Elemento.Symbol.Family.IsInPlace:
@@ -253,13 +306,24 @@ for Corretto in Collector_IFC_Valorizzato:
 t.Commit()
 
 for Elemento in Collector_IFC_Valorizzato:
+    if "CenterLine" in str(Elemento.Category.BuiltInCategory):
+        continue
+    else:
     # ESTRAGGO INFORMAZIONI
-    Categoria = str(Elemento.Category.BuiltInCategory)
-    ID_Elemento = Elemento.Id
-    Nome_Famiglia = EstraiInfoOggetto(Elemento)[0]
-    Nome_Tipo = EstraiInfoOggetto(Elemento)[1]
+        Categoria = str(Elemento.Category.BuiltInCategory)
+        ID_Elemento = Elemento.Id
+        Nome_Famiglia = EstraiInfoOggetto(Elemento)[0]
+        Nome_Tipo = EstraiInfoOggetto(Elemento)[1]
+
+        param_ifc_class = Elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_ELEMENT_AS)
+        param_ifc_predef = Elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_PREDEFINEDTYPE)
+
+        Current_IfcClass = param_ifc_class.AsValueString() if param_ifc_class and param_ifc_class.HasValue else ""
+        Current_Predef = param_ifc_predef.AsValueString() if param_ifc_predef and param_ifc_predef.HasValue else ""
+    """
     Current_Predef = Elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_PREDEFINEDTYPE).AsValueString()
     Current_IfcClass = Elemento.get_Parameter(BuiltInParameter.IFC_EXPORT_ELEMENT_AS).AsValueString()
+    """
     Tipologia = "Sistema"
     IFC_Class_Verifica = VerificaCorrispondenza(Categoria, Current_IfcClass, Current_Predef, DizionarioDiVerifica)[0]
     IFC_Predef_Verifica = VerificaCorrispondenza(Categoria, Current_IfcClass, Current_Predef, DizionarioDiVerifica)[1]
@@ -296,46 +360,54 @@ for Elemento in Collector_IFC_Valorizzato:
             IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append([Categoria,Nome_Famiglia,Nome_Tipo,ID_Elemento,Verifica,0])
             DataTable.append([Nome_Famiglia,Nome_Tipo,Categoria,output.linkify(ID_Elemento),Tipologia,IFC_Class_Verifica,IFC_Predef_Verifica])
 
-output.freeze()
+
 output = pyrevit.output.get_output()
 output.print_md("# Verifica Elementi 'IFCSaveAs'")
 output.print_md("---")
-output.print_table(table_data = DataTable, columns = ["Nome Famiglia", "Nome Tipo","Categoria", "ID Elemento","Tipologia","IFC Class","IFC Predef Type"])
-output.resize(1500, 900)
-output.unfreeze()
-
-
-
-
-
-
-
 
 ###OPZIONI ESPORTAZIONE
 def VerificaTotale(lista):
     return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
 
-ops = ["Si", "No"]
-Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV ?")
-if Scelta == "Si":
-    folder = pyrevit.forms.pick_folder()
-    if folder:
-        
-        if VerificaTotale(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT):
-            pass
-            """ PER ORA RIMOSSO IN ATTESA DI SPECIFICHE
-                IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT = []
-                IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-                IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["Verifica Informativa - Assegnazione IFC Export As.",1])
-                parameter_csv_path = os.path.join(folder, "11_XX_ValorizzazioneIFCSaveAs_Data.csv")
-                with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
-                    writer = csv.writer(file)
-                    writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
-            """
-        else:
+
+if not DataTable:
+    output.print_md("##Nessun elemento da verificare")
+
+    ops = ["Si", "No"]
+    Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV ?")
+    if "UR" in doc.Title.split("_")[4]:
+        IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["","","","","File URS, nessuna esportazione prevista.",1])
+    else:
+        IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT.append(["","","","","Non sono presenti elementi da esportare.",0])
+
+    if Scelta == "Si":
+        folder = pyrevit.forms.pick_folder()
+        if folder:
             parameter_csv_path = os.path.join(folder, "11_ValorizzazioneIFCSaveAs_Data.csv")
             with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
+
+
+
+else:
+    output.freeze()
+    output.print_table(table_data = DataTable, columns = ["Nome Famiglia", "Nome Tipo","Categoria", "ID Elemento","Tipologia","IFC Class","IFC Predef Type"])
+    output.resize(1500, 900)
+    output.unfreeze()
+
+
+    ops = ["Si", "No"]
+    Scelta = pyrevit.forms.CommandSwitchWindow.show(ops, message="Esportare file CSV ?")
+    if Scelta == "Si":
+        folder = pyrevit.forms.pick_folder()
+        if folder:
+
+            parameter_csv_path = os.path.join(folder, "11_ValorizzazioneIFCSaveAs_Data.csv")
+            with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerows(IFC_EXPORT_AS_PARAMETER_CSV_OUTPUT)
+
+
 
 

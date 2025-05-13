@@ -58,24 +58,20 @@ DataTable = []
 
 for element in CollectorProgetto:
     if isinstance(element, FamilyInstance) and element.Symbol.Family.IsInPlace:
-        DataTable.append([element.Symbol.Family.FamilyCategory.Name,element.Symbol.Family.Name,element.Id])
-        FAMIGLIEINPLACE_CSV_OUTPUT.append([element.Symbol.Family.FamilyCategory.Name,element.Symbol.Family.Name,element.Id,0])
-		
+        DataTable.append([element.Symbol.Family.FamilyCategory.Name, element.Symbol.Family.Name, output.linkify(element.Id)])
+        FAMIGLIEINPLACE_CSV_OUTPUT.append([element.Symbol.Family.FamilyCategory.Name, element.Symbol.Family.Name,element.Id, 0])
+
     elif isinstance(element, FamilyInstance) and not element.Symbol.Family.IsInPlace:
-        FAMIGLIEINPLACE_CSV_OUTPUT.append([element.Symbol.Family.FamilyCategory.Name,element.Symbol.Family.Name,element.Id,1])
+        #DataTable.append([element.Symbol.Family.FamilyCategory.Name, element.Symbol.Family.Name, element.Id])
+        FAMIGLIEINPLACE_CSV_OUTPUT.append([element.Symbol.Family.FamilyCategory.Name, element.Symbol.Family.Name, element.Id, 1])
 		
 output.print_md("# Verifica Famiglie In-Place")
 output.print_md("---")
+
 if DataTable:
 	output.print_table(table_data = DataTable,columns = ["Categoria","Famiglia","Id Elemento"],formats = ["","",""])
 else:
 	output.print_md(":white_heavy_check_mark: **Nessuna famiglia in-place presente nel progetto** :white_heavy_check_mark: ")
-
-
-
-###OPZIONI ESPORTAZIONE
-def VerificaTotale(lista):
-	return all(sublist[-1] == 1 for sublist in lista if isinstance(sublist[-1], int))
 
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
@@ -83,20 +79,21 @@ Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")
 if Scelta == "Si":
 	folder = pyrevit.forms.pick_folder()
 	if folder:
-		
-		if VerificaTotale(FAMIGLIEINPLACE_CSV_OUTPUT):
-			pass
-			"""
-			VERIFICAUNITA_CSV_OUTPUT = []
-			VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
-			VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
-			copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
-            """
-		else:
-			copymonitor_csv_path = os.path.join(folder, "13_FamiglieInPlace_Data.csv")
-			with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
-				writer = csv.writer(file)
-				writer.writerows(FAMIGLIEINPLACE_CSV_OUTPUT)
+		copymonitor_csv_path = os.path.join(folder, "13_FamiglieInPlace_Data.csv")
+		with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			for row in FAMIGLIEINPLACE_CSV_OUTPUT:
+				writer.writerow(row)
+
+
+
+		"""
+		VERIFICAUNITA_CSV_OUTPUT = []
+		VERIFICAUNITA_CSV_OUTPUT.append(["Nome Verifica","Stato"])
+		VERIFICAUNITA_CSV_OUTPUT.append(["Georeferenziazione e Orientamento - CopyMonitor correttamente effettuato.",1])
+		copymonitor_csv_path = os.path.join(folder, "07_02_CopyMonitorReport_Data.csv")
+		with codecs.open(copymonitor_csv_path, mode='w', encoding='utf-8') as file:
+			writer = csv.writer(file)
+			writer.writerows(VERIFICAUNITA_CSV_OUTPUT)
+		"""
+

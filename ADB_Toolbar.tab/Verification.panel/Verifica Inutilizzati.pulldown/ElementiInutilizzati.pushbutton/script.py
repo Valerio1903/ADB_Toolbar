@@ -71,6 +71,7 @@ for item in Check:
             
 
 # GENERAZIONE TABELLA
+collector_verifica = []
 for category, elements in Categorie_Inutilizzate.items():
     table_data = []
     for element in elements:
@@ -79,8 +80,11 @@ for category, elements in Categorie_Inutilizzate.items():
     try:
         output.print_table(table_data=table_data, title=category, columns=["Nome Famiglia / Nome Elemento", "ID Elemento", "Tipo"])
     except Exception as e:
-        pass
-        #print("Errore rilevato: ".format(e))
+        print("Errore rilevato: ".format(e))
+    collector_verifica.append(table_data)
+
+if not collector_verifica:
+    output.print_md("### Non sono presenti elementi inutilizzati nel progetto.")
 
 # CONTEGGIO ELEMENTI
 """
@@ -110,6 +114,9 @@ for category, elements in Categorie_Inutilizzate.items():
     for element in elements:
         row = [category, element["Id_Elemento"],element["Nome_Famiglia"], element["Tipo"],0]
         UNUSED_ELEMENTS_CSV_DATA.append(row)
+
+if not Categorie_Inutilizzate.items():
+    UNUSED_ELEMENTS_CSV_DATA.append(["","","","Non sono presenti elementi inutilizzati",1])
 
 ops = ["Si","No"]
 Scelta = forms.CommandSwitchWindow.show(ops, message ="Esportare file CSV ?")

@@ -53,7 +53,10 @@ for item in Check:
 
     # ARRICCHIMENTO FILE CSV
     UNUSED_MATERIALS_CSV_DATA.append([Current.Category.Name,item,Current.Name,0])
+if Counter == 0:
+    UNUSED_MATERIALS_CSV_DATA.append(["","","Non sono presenti elementi inutilizzati",1])
 
+collector_verifica = []
 # GENERAZIONE TABELLA
 for category, elements in Categorie_Inutilizzate.items():
     table_data = []
@@ -64,10 +67,13 @@ for category, elements in Categorie_Inutilizzate.items():
         output.print_table(table_data=table_data, columns=["Nome Materiale", "ID Elemento"])
     except:
         pass
+    collector_verifica.append(table_data)
     """
     except Exception as e:
         print("Errore rilevato: ".format(e))
     """
+if not collector_verifica:
+    output.print_md("### Non sono presenti elementi inutilizzati nel progetto.")
 # CONTEGGIO ELEMENTI
 """
 Counter = 0
