@@ -1,46 +1,4 @@
-﻿Estintori,OST_Sprinkler,IfcFireSuppressionTerminal,FIREHYDRANT,Naspi
-Estintori,OST_Sprinkler,IfcFireSuppressionTerminal,SPRINKLER,Sprinkler
-Estintori,OST_Sprinkler,IfcFireSuppressionTerminal,USERDEFINED,Estintori
-Tubazioni,OST_PipeCurves,IfcPipeSegment,RIGIDSEGMENT,Tubazioni
-Tubazioni flessibili,OST_FlexPipes,IfcPipeSegment,FLEXIBLESEGMENT,Tubazioni flessibili
-Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,BEND,Gomito
-Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Tee
-Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,TRANSITION,Transizione
-Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,USERDEFINED,Calotta
-Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,CONNECTOR,Unione
-Accessori per Tubazioni,OST_PipeAccessory,IfcFireSuppressionTerminal,USERDEFINED,Giunto Sismico
-Apparecchi idraulici,OST_PlumbingFixture,IfcSanitaryTerminal,SINK,Lavabo
-Apparecchi idraulici,OST_PlumbingFixture,IfcSanitaryTerminal,WCSEAT,WC
-Tubazioni,OST_PipeCurves,IfcPipeSegment,RIGIDSEGMENT,Tubazione
-Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,BEND,Gomito
-Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Tee
-Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,TRANSITION,Transizione
-Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,USERDEFINED,Calotta
-Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Unione
-Accessori per tubazione,OST_PipeAccessory,IfcValve,REGULATING,Valvole
-Apparecchi Elettrici,OST_ElectricalEquipment,IfcOutlet,POWEROUTLET,Spina di derivazione
-Apparecchi per Illuminazione,OST_LightingFixtures,IfcLightFixture,POINTSOURCE,Faretto
-Apparecchi per Illuminazione,OST_LightingFixtures,IfcLightFixture,DIRECTIONSOURCE,Proiettore a parete
-Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcAlarm,BELL,Diffusore sonoro
-Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcAlarm,LIGHT,Allarme
-Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcAlarm,MANUALPULLBOX,Pulsante allarme incendio
-Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcSensor,SMOKESENSOR,Rivelatore ottico di fumo
-Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,ANTENNA,Antenna
-Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,GATEWAY,Access Point
-Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,REPEATER,Ripetitore
-Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,ROUTER,Router
-Dispositivi di comunicazione,OST_CommunicationDevices,IfcAudioVisualAppliance,DISPLAY,TV Monitor
-Dispositivi di sicurezza,OST_SecurityDevices,IfcAlarm,SIREN,Allarme Porta
-Dispositivi di sicurezza,OST_SecurityDevices,IfcAudioVisualAppliance,CAMERA,Telecamera Dome
-Passerelle,OST_CableTray,IfcCableCarrierSegment,CABLETRAYSEGMENT,Passerelle 
-Passerelle,OST_CableTray,IfcCableSegment,BUSBARSEGMENT ,Blindosbarre
-Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,BEND,Gomito
-Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,JUNCTION,Tee
-Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,TRANSITION,Transizione
-Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,USERDEFINED,Unione
-Tubo protettivo,OST_Conduit,IfcCableSegment,CABLESEGMENT,Tubo Protettivo
-Raccordi tubo protettivo,OST_ConduitFitting,IfcCableFitting,JUNCTION,Gomito
-Accessori per condotti,OST_DuctAccessory,IfcDamper,FIREDAMPER,Serranda tagliafuoco
+﻿Accessori per condotti,OST_DuctAccessory,IfcDamper,FIREDAMPER,Serranda tagliafuoco
 Accessori per condotti,OST_DuctAccessory,IfcDamper,CONTROLDAMPER,Regolatore di portata
 Condotti,OST_DuctCurves,IfcDuctSegment,RIGIDSEGMENT,Condotti
 Condotti flessibili,OST_FlexDuctCurves,IfcDuctSegment,FLEXIBLESEGMENT,Condotti flessibili
@@ -69,13 +27,59 @@ Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,TRANSITION,Transizione
 Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,USERDEFINED,Calotta
 Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Unione
 Isolamento tubazioni,OST_PipeInsulations,IfcCovering,INSULATION,Isolante tubazioni
-Telaio Strutturale,OST_StructuralFraming,IfcBeam,BEAM,Trave
-Pilastri strutturali,OST_StructuralColumns,IfcColumn,COLUMN,Pilastri
-Collegamenti strutturali,OST_StructConnections,IfcMember,MEMBER,Collegamenti strutturali
-Pavimenti,OST_Floors,IfcSlab,FLOOR,Solaio
-Muri,OST_Walls,IfcWall,STANDARD,Muri
-Muri,OST_Walls,IfcWall,STANDARD,Muri
-Finestre,OST_Windows,IfcWindow,WINDOW,Finestre
+Apparecchi idraulici,OST_PlumbingFixture,IfcSanitaryTerminal,SINK,Lavabo
+Apparecchi idraulici,OST_PlumbingFixture,IfcSanitaryTerminal,WCSEAT,WC
+Tubazioni,OST_PipeCurves,IfcPipeSegment,RIGIDSEGMENT,Tubazione
+Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,BEND,Gomito
+Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Tee
+Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,TRANSITION,Transizione
+Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,USERDEFINED,Calotta
+Raccordi tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Unione
+Accessori per tubazione,OST_PipeAccessory,IfcValve,REGULATING,Valvole
+Estintori,OST_Sprinkler,IfcFireSuppressionTerminal,FIREHYDRANT,Naspi
+Estintori,OST_Sprinkler,IfcFireSuppressionTerminal,SPRINKLER,Sprinkler
+Estintori,OST_Sprinkler,IfcFireSuppressionTerminal,USERDEFINED,Estintori
+Tubazioni,OST_PipeCurves,IfcPipeSegment,RIGIDSEGMENT,Tubazioni
+Tubazioni flessibili,OST_FlexPipes,IfcPipeSegment,FLEXIBLESEGMENT,Tubazioni flessibili
+Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,BEND,Gomito
+Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,JUNCTION,Tee
+Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,TRANSITION,Transizione
+Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,USERDEFINED,Calotta
+Raccordi di Tubazione,OST_PipeFitting,IfcPipeFitting,CONNECTOR,Unione
+Accessori per Tubazioni,OST_PipeAccessory,IfcFireSuppressionTerminal,USERDEFINED,Giunto Sismico
+Apparecchi Elettrici,OST_ElectricalFixtures,IfcSwitchingDevice,tbd,Comandi a pulsante
+Apparecchi Elettrici,OST_ElectricalFixtures,IfcSensor,MOVEMENTSENSOR,Sensori Movimento
+Apparecchi Elettrici,OST_ElectricalFixtures,IfcDistributionBoard,SWITCHBOARD,Inverter
+Apparecchi Elettrici,OST_ElectricalFixtures,IfcDistributionChamberElement,FORMEDDUCT,Pozzetti prefabbricati
+Apparecchi Elettrici,OST_ElectricalFixtures,IfcOutlet,POWEROUTLET,Spina di derivazione
+Apparecchi per Illuminazione,OST_LightingFixtures,IfcLightFixture,POINTSOURCE,Faretto
+Apparecchi per Illuminazione,OST_LightingFixtures,IfcLightFixture,DIRECTIONSOURCE,Proiettore a parete
+Apparecchi Elettrici,OST_ElectricalFixtures,IfcDistributionBoard,tbd,Gruppi di Conversione
+Attrezzatura Elettrica,OST_ElectricalEquipment,IfcElectricFlowStorageDevice,UPS,UPS
+Attrezzatura Elettrica,OST_ElectricalEquipment,IfcElectricGenerator,ENGINEGENERATOR,Gruppo Elettrogeno
+Attrezzatura Elettrica,OST_ElectricalEquipment,IfcDistributionBoard,tbd,Quadri Elettrici
+Attrezzatura Elettrica,OST_ElectricalEquipment,IfcElectricAppliance,tbd,Apparecchi elettrici
+Attrezzatura Elettrica,OST_ElectricalEquipment,IfcTransformer,tbd,Trasformatori
+Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcAlarm,BELL,Diffusore sonoro
+Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcAlarm,LIGHT,Allarme
+Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcAlarm,MANUALPULLBOX,Pulsante allarme incendio
+Dispositivi Allarme Antincendio,OST_FireAlarmDevices,IfcSensor,SMOKESENSOR,Rivelatore ottico di fumo
+Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,ANTENNA,Antenna
+Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,GATEWAY,Access Point (Dispositivo Controllo Accessi)
+Dispositivo Dati,OST_DataDevices,IfcElectricAppliance,tbd,Rack dati
+Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,REPEATER,Ripetitore
+Dispositivo Dati,OST_DataDevices,IfcCommunicationsAppliance,ROUTER,Router
+Dispositivi di comunicazione,OST_CommunicationDevices,IfcAudioVisualAppliance,DISPLAY,TV Monitor
+Dispositivi di sicurezza,OST_SecurityDevices,IfcAlarm,SIREN,Allarme Porta
+Dispositivi di sicurezza,OST_SecurityDevices,IfcAudioVisualAppliance,CAMERA,Telecamera Dome
+Passerelle,OST_CableTray,IfcCableCarrierSegment,CABLETRAYSEGMENT,Passerelle 
+Passerelle,OST_CableTray,IfcCableSegment,BUSBARSEGMENT,Blindosbarre
+Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,BEND,Gomito
+Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,JUNCTION,Tee
+Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,TRANSITION,Transizione
+Raccordi passerella,OST_CableTrayFitting,IfcCableCarrierFitting,USERDEFINED,Unione
+Tubo protettivo,OST_Conduit,IfcCableSegment,CABLESEGMENT,Tubo Protettivo
+Raccordi tubo protettivo,OST_ConduitFitting,IfcCableFitting,JUNCTION,Gomito
 Colonna,OST_Columns,IfcColumn,COLUMN,Colonne
 Controsoffitto,OST_Ceilings,IfcCovering,CEILING,Controsoffitto
 Controsoffitto composto,OST_Ceilings,IfcCovering,CEILING,Controsoffitto
@@ -96,14 +100,32 @@ Modelli generici,OST_GenericModel,IfcBuildingElementProxy,ELEMENT,Maniglie
 Modelli generici,OST_GenericModel,IfcMember,USERDEFINED,Decoro
 Montanti di facciata continua,OST_CurtainWallMullions,IfcMember,MULLION,Montanti facciata continua
 Pannelli di sistema,OST_CurtainWallPanels,IfcPlate,CURTAIN_PANEL,Pannelli di facciata continua
-Ringhiera,OST_StairsRailingBaluster,IfcRailing,BALUSTRADE,Balaustra
-Ringhiera,OST_StairsRailingRail,IfcRailing,HANDRAIL,Corrimano
+Ringhiera,OST_StairsRailing,IfcRailing,BALUSTRADE,Balaustra
+Ringhiera,OST_RailingHandRail,IfcRailing,HANDRAIL,Corrimano
 Tetto di base,OST_Roofs,IfcRoof,FLAT_ROOF,Tetto Piano
 Tetti: fasce,OST_Fascia,IfcRoof,USERDEFINED,Fasce
 Pavimento,OST_Floors,IfcSlab,FLOOR,Pavimenti
 Bordo solaio,OST_EdgeSlab,IfcSlab,USERDEFINED,Finitura solaio
 Scala,OST_Stairs,IfcStair,USERDEFINED,Scale
-Scale: Pianerottoli,OST_StairsLandings,IfcStairFlight,USERDEFINED,Scale
+Scale: Pianerottoli,OST_StairsLandings,IfcStair,USERDEFINED,Scale
 Scale: Rampa,OST_StairsRuns,IfcStairFlight,USERDEFINED,Scale
 Scale: Supporti,OST_StairsSupports,IfcStairFlight,STRAIGHT,Scale
-Scale: Montanti,IfcStairFlight,STRAIGHT,Scale
+Scale: Montanti,OST_StairsStringerCarriage,IfcStairFlight,STRAIGHT,Scale
+Muri,OST_Walls,IfcWall,USERDEFINED,Muri
+Muri,OST_Walls,IfcWall,STANDARD,Muri
+Finestre,OST_Windows,IfcWindow,WINDOW,Finestre
+Rampe inclinate,OST_Ramps,IfcRamp,STRAIGHT_RUN_RAMP
+Telaio Strutturale,OST_StructuralFraming,IfcBeam,BEAM,Trave
+Pilastri strutturali,OST_StructuralColumns,IfcColumn,COLUMN,Pilastri
+Collegamenti strutturali,OST_StructConnections,IfcMember,PLATE,Collegamenti strutturali
+Pavimenti,OST_Floors,IfcSlab,FLOOR,Pavimenti
+Muri,OST_Walls,IfcWall,SOLIDWALL,Muri
+Fondazioni strutturali,OST_StructuralFoundation,IfcPile,BORED,Fondazione a pali
+Fondazioni strutturali,OST_StructuralFoundation,IfcFooting,PILE_CAP,Plinto di fondazione con pali
+Fondazioni strutturali,OST_StructuralFoundation,IfcFooting,PAD_FOOTING,Platea di fondazione senza pali
+Telaio Strutturale,OST_StructuralFraming,IfcFooting,FOOTING_BEAM,Trave di fondazione
+Scala,OST_Stairs,IfcStair,USERDEFINED,Scale
+Scale: Pianerottoli,OST_StairsLandings,IfcStair,USERDEFINED,Scale
+Scale: Rampa,OST_StairsRuns,IfcStairFlight,STRAIGHT,Scale
+Scale: Supporti,OST_StairsSupports,IfcStairFlight,STRAIGHT,Scale
+Scale: Montanti,OST_StairsStringerCarriage,IfcStairFlight,STRAIGHT,Scale
