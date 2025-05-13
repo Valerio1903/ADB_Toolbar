@@ -110,25 +110,30 @@ DataTable = []
 
 
 for Materiale in Collector_Materiali:
-    Stato = 1
-    VERIFICA = "Corretto"
-    SIMBOLO = ":white_heavy_check_mark:"
-
+    Stato = 0
     # VERIFICA NUMERO CAMPI
-    if not len(Materiale.Name.split("_")) == 1:
-        Stato = 0
+    if len(Materiale.Name.split("_")) != 1:
         VERIFICA = "Numero campi errato"
         SIMBOLO = ":cross_mark:"
         DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
         MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato]) 
-
+        continue
     
     campi = Materiale.Name.split("_")
+    #CodiceCliente = campi[0]
     CodiceMateriale = campi[0]
-
+    DescrizioneMateriale = "_".join(campi[1:]) if len(campi) > 1 else ""
+    """
+    # VERIFICA PRESENZA ADB A INIZIO NOME
+    if "ADB" not in CodiceCliente:
+        VERIFICA = "Codice 'ADB' non presente"
+        SIMBOLO = ":cross_mark:"
+        DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
+        MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato])
+        continue
+    """
     # Verifica Codice Materiale nel dizionario
     if CodiceMateriale not in DizionarioDiVerifica:
-        Stato = 0
         VERIFICA = "Codice non trovato nel database"
         SIMBOLO = ":question_mark:"
         DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
@@ -137,7 +142,7 @@ for Materiale in Collector_Materiali:
     
     # Recupera i dati dal dizionario
     dati_materiale = DizionarioDiVerifica[CodiceMateriale]
-    #descrizione = DizionarioDiVerifica[CodiceMateriale][0]
+    descrizione = DizionarioDiVerifica[CodiceMateriale][0]
     formato_atteso = FormatNome
     
     # VERIFICA CAMEL CASE
@@ -147,8 +152,20 @@ for Materiale in Collector_Materiali:
         SIMBOLO = ":cross_mark:"
         DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA, SIMBOLO])
         MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato])
-
-
+        continue
+    """        
+    # VERIFICA DESCRIZIONE
+    if DescrizioneMateriale == descrizione:
+        VERIFICA = "Corretto"
+        SIMBOLO = ":white_heavy_check_mark:"
+        Stato = 1
+    elif len(DescrizioneMateriale) > 25:
+        VERIFICA = "Descrizione troppo lunga"
+        SIMBOLO = ":cross_mark:"
+    else:
+        VERIFICA = "Descrizione non corrispondente"
+        SIMBOLO = ":question_mark:"
+    """
     DataTable.append([Materiale.Name, output.linkify(Materiale.Id), VERIFICA,SIMBOLO])
     MATERIAL_NAMING_CSV_OUTPUT.append([Materiale.Name, Materiale.Id, VERIFICA, Stato])
 

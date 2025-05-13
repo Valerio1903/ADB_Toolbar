@@ -89,7 +89,6 @@ Collector_Livelli = FilteredElementCollector(doc).OfClass(Level).ToElements()
 output.print_md("# Verifica Nomenclatura Griglie e Livelli")
 output.print_md("---")
 
-
 # VERIFICA NOME GRIGLIA
 DataTable = []
 for Griglia in Collector_Griglie:
@@ -99,9 +98,11 @@ for Griglia in Collector_Griglie:
     else:
         DataTable.append([Griglia.Name,output.linkify((Griglia.Id)),":cross_mark:"])
         GRID_LEVELS_NAMING_CSV_OUTPUT.append([Griglia.Category.Name,Griglia.Name,Griglia.Id,0])
-
-output.print_table(table_data = DataTable,title = "Verifica Nomenclatura Griglie", columns = ["Categoria","ID Elemento","Verifica"],formats = ["","",""])
-
+if DataTable:
+        output.print_table(table_data = DataTable,title = "Verifica Nomenclatura Griglie", columns = ["Categoria","ID Elemento","Verifica"],formats = ["","",""])
+else:
+        output.print_md(":cross_mark: **Nessuna griglia presente nel progetto** :cross_mark:")
+        GRID_LEVELS_NAMING_CSV_OUTPUT.append(["Nessuna griglia presente nel progetto","","",0])
 
 VERIFICA = "NUMERO CAMPI ERRATO"
 SIMBOLO = ":cross_mark:"

@@ -41,8 +41,7 @@ t = Transaction(doc, "Verifica Fase")
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Livelli.csv'))
-
+parent_dir = os.path.abspath(os.path.join(script_dir,'..', '..','..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Livelli.csv'))
 
 # CREAZIONE LISTE DI OUTPUT DATA
 VERIFICAFASE_CSV_OUTPUT = []

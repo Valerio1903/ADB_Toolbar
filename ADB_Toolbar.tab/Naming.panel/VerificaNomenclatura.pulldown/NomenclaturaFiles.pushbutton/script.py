@@ -49,7 +49,7 @@ output = pyrevit.output.get_output()
 
 #COLLOCAZIONE CSV DI CONTROLLO
 script_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(script_dir, '..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Files.csv'))
+parent_dir = os.path.abspath(os.path.join(script_dir,'..', '..','..','000_Raccolta CSV di controllo','12_CSV_Nomenclatura Files.csv'))
 
 #PREPARAZIONE OUTPUT
 output = pyrevit.output.get_output()
@@ -114,7 +114,7 @@ if Cartella_Controllo:
                 VALUE = 1
                 VERIFICA_DIMENSIONE = ":cross_mark:"
                 SuddivisioneNome = NomeFile.split("_")
-                if "34" not in SuddivisioneNome[0]:
+                if "9nnn" not in SuddivisioneNome[0]:
                     VERIFICA = "Codice progressivo errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
@@ -122,19 +122,19 @@ if Cartella_Controllo:
                     VERIFICA = "WBS di progetto errata."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
-                elif SuddivisioneNome[2] not in DizionarioDiVerifica["Zona"]:
+                elif not any(SuddivisioneNome[2] in zona for zona in DizionarioDiVerifica["Zona"]):
                     VERIFICA = "Codice zona errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
-                elif SuddivisioneNome[3] not in DizionarioDiVerifica["Fase"]:
+                elif not any(SuddivisioneNome[3] in fase for fase in DizionarioDiVerifica["Fase"]):
                     VERIFICA = "Codice fase errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
-                elif SuddivisioneNome[4] not in DizionarioDiVerifica["Sistema/Argomento"]:
+                elif not any(SuddivisioneNome[4] in sistema for sistema in DizionarioDiVerifica["Sistema/Argomento"]):
                     VERIFICA = "Codice sistema/argomento errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
-                elif SuddivisioneNome[5] not in DizionarioDiVerifica["Tipo"]:
+                elif not any(SuddivisioneNome[5] in tipo for tipo in DizionarioDiVerifica["Tipo"]):
                     VERIFICA = "Codice tipo errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
@@ -142,7 +142,7 @@ if Cartella_Controllo:
                     VERIFICA = "Codice progressivo errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
-                elif not(SuddivisioneNome[7].isnumeric()) and len(SuddivisioneNome[7]) != 2 or len(SuddivisioneNome[7]) != 2:
+                elif not(SuddivisioneNome[7].split(".")[0].isnumeric()) and len(SuddivisioneNome[7]) != 2 or len(SuddivisioneNome[7].split(".")[0]) != 2:
                     VERIFICA = "Codice revisione errato."
                     SIMBOLO = ":cross_mark:"
                     VALUE = 0
@@ -156,15 +156,14 @@ if Cartella_Controllo:
             # CONTROLLO NOME DEL FILE
             DataTable.append([NomeFile,format_size(DimensioneFile),VERIFICA_DIMENSIONE,VERIFICA,SIMBOLO])
             FILEDIMENSION_CSV_OUTPUT.append([NomeFile,VERIFICA,format_size(DimensioneFile),VALUE])
-### ASSEGNARE LA NOMENCLATURA CORRETTA DEI FILESx\\
 
+### ASSEGNARE LA NOMENCLATURA CORRETTA DEI FILESx\\
 
 output = pyrevit.output.get_output()
 output.print_md("# Verifica Dimensione Files")
 output.print_md("---")
 
 output.print_table(table_data = DataTable,columns = ["Nome File","Dimensione File","< 200 MB","Verifica Nomenclatura","Esito Verifica"],formats = ["","","","",""])
-
 
 ###OPZIONI ESPORTAZIONE
 ops = ["Si","No"]
@@ -176,4 +175,3 @@ if Scelta == "Si":
     with codecs.open(parameter_csv_path, mode='w', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerows(FILEDIMENSION_CSV_OUTPUT)
-        
